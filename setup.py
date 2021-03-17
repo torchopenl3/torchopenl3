@@ -79,6 +79,7 @@ setup(
             #"scikit-image==v0.18.1",    # For openl3
             "openl3==0.3.1",
             "kapre==0.1.4",     # For openl3
+            "h5py==2.10.0",     # For openl3
             "requests",
             "tqdm",
         ],
@@ -89,6 +90,7 @@ setup(
             #"scikit-image==v0.18.1",    # For openl3
             "openl3==0.3.1",
             "kapre==0.1.4",     # For openl3
+            "h5py==2.10.0",     # For openl3
             "requests",
             "tqdm",
             "pre-commit",
