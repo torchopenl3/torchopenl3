@@ -8,7 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.6, 3.7]
+        # Unfortunately, openl3 dependencies
+        # like tensorflow<1.14 aren't pip3
+        # installable for 3.8 and 3.9
+        # So we ignore these versions for
+        # our regression tests.
+        #python-version: [3.6, 3.7, 3.8, 3.9]
 
     steps:
     - uses: actions/checkout@master
