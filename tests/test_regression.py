@@ -12,14 +12,14 @@ from tqdm.auto import tqdm
 import torchopenl3
 
 AUDIO_URLS = [
-"https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_1s.wav",
-"https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_44k.wav",
-"https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_mono.wav",
-"https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_stereo.wav",
-# Ignore empty audio which causes openl3 to throw an exception
-#"https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/empty.wav",
-"https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/short.wav",
-"https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/silence.wav"
+    "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_1s.wav",
+    "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_44k.wav",
+    "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_mono.wav",
+    "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_stereo.wav",
+    # Ignore empty audio which causes openl3 to throw an exception
+    # "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/empty.wav",
+    "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/short.wav",
+    "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/silence.wav",
 ]
 
 AUDIO_MODEL_PARAMS = {
@@ -30,6 +30,7 @@ AUDIO_MODEL_PARAMS = {
     "center": [True, False],
     "hop_size": [0.1, 0.5],
 }
+
 
 class TestRegression:
     """
@@ -43,14 +44,20 @@ class TestRegression:
             audio, sr = sf.read(filename)
             audios.append(audio)
             srs.append(sr)
-        embeddings0, ts0 = openl3.get_audio_embedding(audios, srs, batch_size=32, **modelparams)
-        embeddings1, ts1 = openl3.get_audio_embedding(audios, srs, batch_size=32, **modelparams)
+        embeddings0, ts0 = openl3.get_audio_embedding(
+            audios, srs, batch_size=32, **modelparams
+        )
+        embeddings1, ts1 = openl3.get_audio_embedding(
+            audios, srs, batch_size=32, **modelparams
+        )
         # This is just a sanity check that openl3
         # gives consistent results, we can remove
         # it later.
-        assert np.mean(np.abs(embeddings1 - embeddings2)) <= 1e-6
+        assert np.mean(np.abs(embeddings1 - embeddings0)) <= 1e-6
         assert np.mean(np.abs(ts1 - ts2)) <= 1e-6
-        embeddings2, ts2 = torchopenl3.get_audio_embedding(audios, srs, batch_size=32, **modelparams)
+        embeddings2, ts2 = torchopenl3.get_audio_embedding(
+            audios, srs, batch_size=32, **modelparams
+        )
         assert np.mean(np.abs(embeddings1 - embeddings2)) <= 1e-6
         assert np.mean(np.abs(ts1 - ts2)) <= 1e-6
 
@@ -60,9 +67,12 @@ class TestRegression:
             for url in AUDIO_URLS:
                 filename = os.path.join(tmpdirname, os.path.split(url)[1])
                 r = requests.get(url, allow_redirects=True)
-                open(filename, 'wb').write(r.content)
+                open(filename, "wb").write(r.content)
                 filenames.append(filename)
-            
-            modelparamlist = [dict(zip(AUDIO_MODEL_PARAMS.keys(), p)) for p in itertools.product(*list(AUDIO_MODEL_PARAMS.values()))]
+
+            modelparamlist = [
+                dict(zip(AUDIO_MODEL_PARAMS.keys(), p))
+                for p in itertools.product(*list(AUDIO_MODEL_PARAMS.values()))
+            ]
             for modelparams in tqdm(modelparamlist):
                 self.check_model_for_regression(modelparams, filenames)
