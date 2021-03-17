@@ -56,14 +56,10 @@ setup(
     license='MIT',
     classifiers=[
         'Development Status :: 3 - Alpha',
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: Apache Software License v2.0',
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         'Topic :: Multimedia :: Sound/Audio :: Analysis',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
     install_requires=[
