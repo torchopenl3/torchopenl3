@@ -18,7 +18,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: apt-get
       run: |
-        sudo apt-get install -y libsndfile-dev libhdf5-dev python3-h5py
+        sudo apt-get install -y libsndfile1 libsndfile-dev libhdf5-dev python3-h5py
     - name: Display Python version
       run: python -c "import sys; print(sys.version)"
     - name: python dependencies
