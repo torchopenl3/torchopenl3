@@ -67,7 +67,7 @@ setup(
         'scipy>=0.19.1',
         'PySoundFile>=0.9.0.post1',
         'resampy>=0.2.1,<0.3.0',
-        'scikit-image>=0.14.3,<0.15.0'
+        #'scikit-image>=0.14.3,<0.15.0'
         'torch>=1.4.0'
     ],
     extras_require={
@@ -75,14 +75,17 @@ setup(
             "pytest",
             "pytest-cov",
             "openl3",
+            "kapre==0.1.4",     # For openl3
         ],
         "dev": [
+            "pytest",
+            "pytest-cov",
+            "openl3",
+            "kapre==0.1.4",     # For openl3
             "pre-commit",
             "nbstripout==0.3.9",  # Used in precommit hooks
             "black==20.8b1",  # Used in precommit hooks
             "jupytext==v1.10.3",  # Used in precommit hooks
-            "pytest",
-            "pytest-cov",
         ],
     },
     package_data={
