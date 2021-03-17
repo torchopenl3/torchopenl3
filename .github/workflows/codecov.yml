@@ -22,15 +22,13 @@ jobs:
     - name: pip install
       run: |
         pip install coverage
-        # These are used in the examples notebook.
-        pip install ipython librosa matplotlib
         pip install -e .
         # For pytests
         pip install pytest-cov
     - name: Generate coverage report
       run: |
         # Limit to coverage of source files in current directory
-        coverage run -m examples.examples --source=.
+        coverage run -m pytest --source=.
         coverage xml
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1.2.0
