@@ -42,8 +42,11 @@ class TestRegression:
             audio, sr = sf.read(filename)
             audios.append(audio)
             srs.append(sr)
+        embeddings0, ts0 = openl3.get_audio_embedding(audios, srs, **modelparams)
         embeddings1, ts1 = openl3.get_audio_embedding(audios, srs, **modelparams)
-        embeddings2, ts2 = openl3.get_audio_embedding(audios, srs, **modelparams)
+        assert np.mean(np.abs(embeddings1 - embeddings2)) <= 1e-6
+        assert np.mean(np.abs(ts1 - ts2)) <= 1e-6
+        embeddings2, ts2 = torchopenl3.get_audio_embedding(audios, srs, **modelparams)
         assert np.mean(np.abs(embeddings1 - embeddings2)) <= 1e-6
         assert np.mean(np.abs(ts1 - ts2)) <= 1e-6
 
@@ -52,9 +55,9 @@ class TestRegression:
             filenames = []
             for url in AUDIO_URLS:
                 filename = os.path.join(tmpdirname, os.path.split(url)[1])
-                print(filename)
                 r = requests.get(url, allow_redirects=True)
                 open(filename, 'wb').write(r.content)
+                filenames.append(filename)
             
             modelparamlist = [dict(zip(AUDIO_MODEL_PARAMS.keys(), p)) for p in itertools.product(*list(AUDIO_MODEL_PARAMS.values()))]
             for modelparams in tqdm(modelparamlist):
