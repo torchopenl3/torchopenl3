@@ -6,11 +6,19 @@ import torch
 import requests
 import os
 
-                
-def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
-                        content_type="music", embedding_size=6144,
-                        center=True, hop_size=0.1, batch_size=32,
-                        verbose=True):
+
+def get_audio_embedding(
+    audio,
+    sr,
+    model=None,
+    input_repr="mel256",
+    content_type="music",
+    embedding_size=6144,
+    center=True,
+    hop_size=0.1,
+    batch_size=32,
+    verbose=True,
+):
     if isinstance(audio, np.ndarray):
         audio_list = [audio]
         list_input = False
@@ -18,15 +26,16 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
         audio_list = audio
         list_input = True
 
-
     if isinstance(sr, Real):
         sr_list = [sr] * len(audio_list)
     elif isinstance(sr, list):
         sr_list = sr
 
-    model_weight_path = os.path.join(os.path.dirname(__file__),
-                                     'openl3_{}_{}_layer_weights'.format(input_repr, content_type))
-    
+    model_weight_path = os.path.join(
+        os.path.dirname(__file__),
+        "openl3_{}_{}_layer_weights".format(input_repr, content_type),
+    )
+
     model = PytorchOpenl3(input_repr, embedding_size, model_weight_path)
 
     embedding_list = []
@@ -35,8 +44,7 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
     batch = []
     file_batch_size_list = []
     for audio, sr in zip(audio_list, sr_list):
-        x = preprocess_audio_batch(
-            audio, sr, hop_size=hop_size, center=center)
+        x = preprocess_audio_batch(audio, sr, hop_size=hop_size, center=center)
         batch.append(x)
         file_batch_size_list.append(x.shape[0])
 
@@ -44,11 +52,10 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
     total_size = batch.shape[0]
     batch_embedding = []
     with torch.set_grad_enabled(False):
-        for i in range((total_size//batch_size) + 1):
-            small_batch = batch[i*batch_size:(i+1)*batch_size]
+        for i in range((total_size // batch_size) + 1):
+            small_batch = batch[i * batch_size : (i + 1) * batch_size]
             small_batch = torch.tensor(small_batch).float()
-            batch_embedding.append(
-                model(small_batch).detach().numpy())
+            batch_embedding.append(model(small_batch).detach().numpy())
     batch_embedding = np.vstack(batch_embedding)
     start_idx = 0
     for file_batch_size in file_batch_size_list:
