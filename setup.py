@@ -65,23 +65,32 @@ setup(
     install_requires=[
         'numpy>=1.13.0',
         'scipy>=0.19.1',
-        'PySoundFile>=0.9.0.post1',
+        "soundfile",
         'resampy>=0.2.1,<0.3.0',
-        #'scikit-image>=0.14.3,<0.15.0'
-        'torch>=1.4.0'
+        #'scikit-image>=0.14.3,<0.15.0',
+        'torch>=1.4.0',
+        'nnAudio',
     ],
     extras_require={
         "test": [
             "pytest",
             "pytest-cov",
-            "openl3",
+            "Cython >= 0.23.4", # For openl3
+            #"scikit-image==v0.18.1",    # For openl3
+            "openl3==0.3.1",
             "kapre==0.1.4",     # For openl3
+            "requests",
+            "tqdm",
         ],
         "dev": [
             "pytest",
             "pytest-cov",
-            "openl3",
+            "Cython >= 0.23.4", # For openl3
+            #"scikit-image==v0.18.1",    # For openl3
+            "openl3==0.3.1",
             "kapre==0.1.4",     # For openl3
+            "requests",
+            "tqdm",
             "pre-commit",
             "nbstripout==0.3.9",  # Used in precommit hooks
             "black==20.8b1",  # Used in precommit hooks
