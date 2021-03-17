@@ -70,6 +70,21 @@ setup(
         'scikit-image>=0.14.3,<0.15.0'
         'torch>=1.4.0'
     ],
+    extras_require={
+        "test": [
+            "pytest",
+            "pytest-cov",
+            "openl3",
+        ],
+        "dev": [
+            "pre-commit",
+            "nbstripout==0.3.9",  # Used in precommit hooks
+            "black==20.8b1",  # Used in precommit hooks
+            "jupytext==v1.10.3",  # Used in precommit hooks
+            "pytest",
+            "pytest-cov",
+        ],
+    },
     package_data={
         'torchopenl3': weight_files
     },
