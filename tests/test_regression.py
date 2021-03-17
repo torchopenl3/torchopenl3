@@ -54,6 +54,9 @@ class TestRegression:
         )
         embeddings1 = np.array(embeddings1)
         ts1 = np.array(ts1)
+        print(len(filenames))
+        print(embeddings0.shape)
+        print(embeddings1.shape)
         # This is just a sanity check that openl3
         # gives consistent results, we can remove
         # it later.
