@@ -27,7 +27,7 @@ AUDIO_MODEL_PARAMS = {
     "embedding_size": [512, 6144],
     "verbose": [0, 1],
     "center": [True, False],
-    "hopsize": [0.1, 0.5],
+    "hop_size": [0.1, 0.5],
 }
 
 class TestRegression:
