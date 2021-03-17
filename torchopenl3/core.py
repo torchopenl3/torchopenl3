@@ -1,12 +1,15 @@
 import numpy as np
-from model import PytorchOpenl3
-from utils import preprocess_audio_batch
+from .model import PytorchOpenl3
+from .utils import preprocess_audio_batch
 from numbers import Real
 import torch
+import requests
+import os
 
+                
 def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
                         content_type="music", embedding_size=6144,
-                        weight_folder ='',center=True, hop_size=0.1, batch_size=32,
+                        center=True, hop_size=0.1, batch_size=32,
                         verbose=True):
     if isinstance(audio, np.ndarray):
         audio_list = [audio]
@@ -21,7 +24,9 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
     elif isinstance(sr, list):
         sr_list = sr
 
-    model_weight_path = f'{weight_folder}/{input_repr}/openl3_no_mel_layer_pytorch_weights_{content_type}_{embedding_size}'
+    model_weight_path = os.path.join(os.path.dirname(__file__),
+                                     'openl3_{}_{}_layer_weights'.format(input_repr, content_type))
+    
     model = PytorchOpenl3(input_repr, embedding_size, model_weight_path)
 
     embedding_list = []
