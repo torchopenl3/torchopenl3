@@ -47,9 +47,13 @@ class TestRegression:
         embeddings0, ts0 = openl3.get_audio_embedding(
             audios, srs, batch_size=32, **modelparams
         )
+        embeddings0 = np.array(embeddings0)
+        ts0 = np.array(ts0)
         embeddings1, ts1 = openl3.get_audio_embedding(
             audios, srs, batch_size=32, **modelparams
         )
+        embeddings1 = np.array(embeddings1)
+        ts1 = np.array(ts1)
         # This is just a sanity check that openl3
         # gives consistent results, we can remove
         # it later.
@@ -58,6 +62,8 @@ class TestRegression:
         embeddings2, ts2 = torchopenl3.get_audio_embedding(
             audios, srs, batch_size=32, **modelparams
         )
+        embeddings2 = np.array(embeddings2)
+        ts2 = np.array(ts2)
         assert np.mean(np.abs(embeddings1 - embeddings2)) <= 1e-6
         assert np.mean(np.abs(ts1 - ts2)) <= 1e-6
 
