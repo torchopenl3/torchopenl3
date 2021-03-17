@@ -25,11 +25,11 @@ jobs:
         pip install -e .
         # For pytests
         pip install pytest-cov
-    - name: Generate coverage report
-      run: |
-        # Limit to coverage of source files in current directory
-        coverage run -m pytest --source=.
-        coverage xml
+#    - name: Generate coverage report
+#      run: |
+#        # Limit to coverage of source files in current directory
+#        coverage run -m pytest --source=.
+#        coverage xml
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1.2.0
       with:
