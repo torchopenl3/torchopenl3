@@ -7,10 +7,19 @@ import requests
 import os
 
 
-def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
-                        content_type="music", embedding_size=6144,
-                        center=True, hop_size=0.1, batch_size=32,
-                        verbose=True, weight_path=''):
+def get_audio_embedding(
+    audio,
+    sr,
+    model=None,
+    input_repr="mel256",
+    content_type="music",
+    embedding_size=6144,
+    center=True,
+    hop_size=0.1,
+    batch_size=32,
+    verbose=True,
+    weight_path="",
+):
     if isinstance(audio, np.ndarray):
         audio_list = [audio]
         list_input = False
@@ -32,7 +41,14 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
     file_batch_size_list = []
     for audio, sr in zip(audio_list, sr_list):
         x = preprocess_audio_batch(
-            audio, sr, hop_size=hop_size, center=center, input_repr=input_repr, content_type=content_type, embedding_size=embedding_size)
+            audio,
+            sr,
+            hop_size=hop_size,
+            center=center,
+            input_repr=input_repr,
+            content_type=content_type,
+            embedding_size=embedding_size,
+        )
         batch.append(x)
         file_batch_size_list.append(x.shape[0])
 
@@ -40,14 +56,13 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
     total_size = batch.shape[0]
     batch_embedding = []
     with torch.set_grad_enabled(False):
-        for i in range((total_size//batch_size) + 1):
-            small_batch = batch[i*batch_size:(i+1)*batch_size]
+        for i in range((total_size // batch_size) + 1):
+            small_batch = batch[i * batch_size : (i + 1) * batch_size]
             small_batch = torch.tensor(small_batch).float()
-            batch_embedding.append(
-                model(small_batch).detach().numpy())
+            batch_embedding.append(model(small_batch).detach().numpy())
     batch_embedding = np.vstack(batch_embedding)
     batch_embedding = batch_embedding.swapaxes(1, 2).swapaxes(2, 3)
-    batch_embedding = batch_embedding.reshape(total_size,-1)
+    batch_embedding = batch_embedding.reshape(total_size, -1)
     start_idx = 0
     for file_batch_size in file_batch_size_list:
         end_idx = start_idx + file_batch_size
