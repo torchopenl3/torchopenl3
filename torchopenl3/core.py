@@ -46,6 +46,8 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
             batch_embedding.append(
                 model(small_batch).detach().numpy())
     batch_embedding = np.vstack(batch_embedding)
+    batch_embedding = batch_embedding.swapaxes(1, 2).swapaxes(2, 3)
+    batch_embedding = batch_embedding.reshape(total_size,-1)
     start_idx = 0
     for file_batch_size in file_batch_size_list:
         end_idx = start_idx + file_batch_size
