@@ -44,31 +44,25 @@ class TestRegression:
             audio, sr = sf.read(filename)
             audios.append(audio)
             srs.append(sr)
+        n = len(filenames)
         embeddings0, ts0 = openl3.get_audio_embedding(
             audios, srs, batch_size=32, **modelparams
         )
-        embeddings0 = np.stack(embeddings0)
-        ts0 = np.stack(ts0)
         embeddings1, ts1 = openl3.get_audio_embedding(
             audios, srs, batch_size=32, **modelparams
         )
-        embeddings1 = np.stack(embeddings1)
-        ts1 = np.stack(ts1)
-        print(len(filenames))
-        print(embeddings0.shape)
-        print(embeddings1.shape)
         # This is just a sanity check that openl3
         # gives consistent results, we can remove
         # it later.
-        assert np.mean(np.abs(embeddings1 - embeddings0)) <= 1e-6
-        assert np.mean(np.abs(ts1 - ts2)) <= 1e-6
+        for i in range(n):
+            assert np.mean(np.abs(embeddings1[i] - embeddings0[i])) <= 1e-6
+            assert np.mean(np.abs(ts1[i] - ts0[i])) <= 1e-6
         embeddings2, ts2 = torchopenl3.get_audio_embedding(
             audios, srs, batch_size=32, **modelparams
         )
-        embeddings2 = np.stack(embeddings2)
-        ts2 = np.stack(ts2)
-        assert np.mean(np.abs(embeddings1 - embeddings2)) <= 1e-6
-        assert np.mean(np.abs(ts1 - ts2)) <= 1e-6
+        for i in range(n):
+            assert np.mean(np.abs(embeddings1[i] - embeddings2[i])) <= 1e-6
+            assert np.mean(np.abs(ts1[i] - ts2[i])) <= 1e-6
 
     def test_regression(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
