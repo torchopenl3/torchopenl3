@@ -35,22 +35,21 @@ Then you can do regression testing of torchopenl3 API vs openl3..
 
 If that doesn't work (and it might not because openl3 has tricky
 requirements), install Docker and work within the Docker environment.
-Unfortunately this Docker image is quite big (about 5 GB) because
-of pytorch AND tensorflow dependencies, but you only need to download
-it once:
+Unfortunately this Docker image is quite big (about 4 GB) because
+of pytorch AND tensorflow dependencies AND openl3 models, but you
+only need to download it once:
 
 ```
 docker pull turian/torchopenl3
 # Or, build the docker yourself
 #docker build -t turian/torchopenl3 .
-#docker-squash turian/torchopenl3 .
 docker run --mount source=`pwd`,target=/home/openl3/,type=bind -it turian/torchopenl3 bash
 ```
 
 Inside docker, run:
 ```
 pip3 install -e ".[dev]"
-pytest
+pytest 2>&1 | less
 ```
 
 If it says `killed`, increase Docker memory.

@@ -28,5 +28,6 @@ RUN pip3 uninstall torchopenl3
 RUN rm -Rf torchopenl3
 
 RUN apt-get autoremove -y
+RUN rm -Rf /root/.cache
 
 USER openl3
