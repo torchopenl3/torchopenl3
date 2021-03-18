@@ -1,5 +1,4 @@
-FROM ubuntu:20.04
-ENV LANG C.UTF-8
+FROM ubuntu:20.04 ENV LANG C.UTF-8
 
 # Disable Prompt During Packages Installation
 ARG DEBIAN_FRONTEND=noninteractive
@@ -20,7 +19,7 @@ RUN update-alternatives --install /usr/local/bin/python python /usr/bin/python3.
 RUN update-alternatives --install /usr/local/bin/python3 python /usr/bin/python3.6 3
 RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 RUN python3.6 get-pip.py && rm get-pip.py
-RUN apt-get install -y git
+RUN apt-get install -y git vim sudo
 RUN apt-get install -y libsndfile-dev
 
 #RUN apt-get install -y lsb-release wget software-properties-common
