@@ -42,6 +42,7 @@ tensorflow dependencies, but you only need to download it once:
 docker pull turian/torchopenl3
 # Or, build the docker yourself
 #docker build -t turian/torchopenl3 .
+#docker-squash turian/torchopenl3 .
 docker run --mount source=`pwd`,target=/home/openl3/,type=bind -it turian/torchopenl3 bash
 ```
 
