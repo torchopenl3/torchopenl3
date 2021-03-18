@@ -57,8 +57,8 @@ def preprocess_audio_batch(audio, sr, input_repr,content_type,embedding_size,cen
     
     tf_model = openl3.models.load_audio_embedding_model(
         input_repr=input_repr, content_type=content_type, embedding_size=embedding_size)
-    inp = tf_model.get_layer(f'input_2').input
-    oups = tf_model.get_layer(f'melspectrogram_2').output
+    inp = tf_model.get_layer(f'input_1').input
+    oups = tf_model.get_layer(f'melspectrogram_1').output
     model_mel = Model(inputs=[inp], outputs=oups)
     x = model_mel.predict(x)
     
