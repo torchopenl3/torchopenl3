@@ -8,7 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [2.7, 3.6, 3.7, 3.8, 3.9]
+        python-version: [3.6, 3.7]
+        # Unfortunately, openl3 dependencies
+        # like tensorflow<1.14 aren't pip3
+        # installable for 3.8 and 3.9
+        # So we ignore these versions for
+        # our regression tests.
+        #python-version: [3.6, 3.7, 3.8, 3.9]
 
     steps:
     - uses: actions/checkout@master
@@ -18,7 +24,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: apt-get
       run: |
-        sudo apt-get install -y libsndfile-dev
+        sudo apt-get install -y libsndfile1 libsndfile-dev libhdf5-dev python3-h5py
     - name: Display Python version
       run: python -c "import sys; print(sys.version)"
     - name: python dependencies
@@ -29,6 +35,3 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-    - name: Run integration test
-      run: |
-        python examples/examples.py
