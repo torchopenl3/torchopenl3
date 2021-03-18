@@ -130,3 +130,11 @@ dmypy.json
 
 *.sw?
 *_layer_weights
+
+.bash_history
+.viminfo
+*.bak
+
+.keras/
+.local/
+.python_history
