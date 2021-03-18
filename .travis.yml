@@ -1,6 +1,8 @@
 language:
   python
 
+# 2.7 doesn't work with nnAudio
+# 3.8 and 3.9 don't work with openl3 old-school TF
 matrix:
   include:
     - os: linux
@@ -10,39 +12,17 @@ matrix:
       dist: focal
       python: 3.7
     - os: linux
-      dist: focal
-      python: 3.8
-    - os: linux
-      dist: focal
-      python: 3.9
-    - os: linux
-      dist: bionic
-      python: 2.7
-    - os: linux
       dist: bionic
       python: 3.6
     - os: linux
       dist: bionic
       python: 3.7
     - os: linux
-      dist: bionic
-      python: 3.8
-    # Do they have it?
-    #- os: linux
-    #  dist: bionic
-    #  python: 3.9
-    - os: linux
       dist: groovy
       python: 3.6
     - os: linux
       dist: groovy
       python: 3.7
-    - os: linux
-      dist: groovy
-      python: 3.8
-    - os: linux
-      dist: groovy
-      python: 3.9
     # https://travis-ci.community/t/how-to-skip-python-download-to-osx-image-and-avoid-download-unavailable-error/9554/2
     #- os: osx
     #  # Would be nice to try different python versions :(
