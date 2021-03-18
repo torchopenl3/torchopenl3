@@ -2,6 +2,7 @@ import numpy as np
 import resampy
 import openl3
 from keras import Model, Input
+import torch
 
 TARGET_SR = 48000
 
