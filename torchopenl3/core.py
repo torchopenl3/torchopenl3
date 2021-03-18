@@ -23,7 +23,7 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
     elif isinstance(sr, list):
         sr_list = sr
 
-    model = PytorchOpenl3(input_repr, embedding_size, weight_path)
+    model = PytorchOpenl3(input_repr, embedding_size, weight_path).eval()
 
     embedding_list = []
     ts_list = []
