@@ -9,10 +9,10 @@ def load_weights(weight_file):
         return
 
     try:
-        weights_dict = np.load(weight_file, allow_pickle=True)
+        weights_dict = np.load(weight_file, allow_pickle=True).item()
     except:
         weights_dict = np.load(
-            weight_file, encoding='bytes', allow_pickle=True)
+            weight_file, encoding='bytes', allow_pickle=True).item()
 
     return weights_dict
 
