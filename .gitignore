@@ -134,3 +134,7 @@ dmypy.json
 .bash_history
 .viminfo
 *.bak
+
+.keras/
+.local/
+.python_history
