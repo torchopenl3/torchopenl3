@@ -65,4 +65,4 @@ def preprocess_audio_batch(audio, sr, input_repr,content_type,embedding_size,cen
     model_mel = Model(inputs=[inp], outputs=oups)
     x = model_mel.predict(x)
     
-    return torch.Tensor(x.swapaxes(2, 3).swapaxes(1, 2))
+    return x.swapaxes(2, 3).swapaxes(1, 2)
