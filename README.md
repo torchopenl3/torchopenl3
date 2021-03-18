@@ -2,7 +2,13 @@
 
 [forthcoming]
 
-## Development
+## Development$
+
+We want `pytest` to pass, specifically we want `tests/test_regression.py`
+to run to demonstrate that torchopenl3 API matches the original
+openl3 API.
+
+Here is what you need to do to get `pytest` running.
 
 Make sure you have pre-commit hooks installed:
 ```
