@@ -32,7 +32,7 @@ def get_audio_embedding(audio, sr, model=None, input_repr="mel256",
     file_batch_size_list = []
     for audio, sr in zip(audio_list, sr_list):
         x = preprocess_audio_batch(
-            audio, sr, hop_size=hop_size, center=center)
+            audio, sr, hop_size=hop_size, center=center, input_repr=input_repr, content_type=content_type, embedding_size=embedding_size)
         batch.append(x)
         file_batch_size_list.append(x.shape[0])
 
