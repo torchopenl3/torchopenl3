@@ -33,7 +33,8 @@ def get_num_windows(audio_len, frame_len, hop_len, center):
         return 1 + int(np.ceil((audio_len - frame_len)/float(hop_len)))
 
 
-def preprocess_audio_batch(audio, sr, input_repr,content_type,embedding_size,center=True, hop_size=0.1,):
+def preprocess_audio_batch(audio, sr, input_repr,content_type,embedding_size,center=True, hop_size=0.1):
+    global count
     if audio.ndim == 2:
         audio = np.mean(audio, axis=1)
 
@@ -58,7 +59,7 @@ def preprocess_audio_batch(audio, sr, input_repr,content_type,embedding_size,cen
     
     tf_model = openl3.models.load_audio_embedding_model(
         input_repr=input_repr, content_type=content_type, embedding_size=embedding_size)
-    global count += 1
+    count += 1
     inp = tf_model.get_layer(f'input_{count}').input
     oups = tf_model.get_layer(f'melspectrogram_{count}').output
     model_mel = Model(inputs=[inp], outputs=oups)
