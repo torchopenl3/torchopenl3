@@ -32,7 +32,7 @@ def get_num_windows(audio_len, frame_len, hop_len, center):
         return 1 + int(np.ceil((audio_len - frame_len)/float(hop_len)))
 
 
-def preprocess_audio_batch(audio, sr, center=True, hop_size=0.1,input_repr,content_type,embedding_size):
+def preprocess_audio_batch(audio, sr, input_repr,content_type,embedding_size,center=True, hop_size=0.1,):
     if audio.ndim == 2:
         audio = np.mean(audio, axis=1)
 
