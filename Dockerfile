@@ -1,10 +1,10 @@
-FROM ubuntu:20.04 ENV LANG C.UTF-8
+FROM ubuntu:20.04
+ENV LANG C.UTF-8
 
 # Disable Prompt During Packages Installation
 ARG DEBIAN_FRONTEND=noninteractive
 
 # Add non root user
-# FIXME
 RUN useradd -ms /bin/bash openl3 && echo "openl3:openl3" | chpasswd && adduser openl3 sudo
 
 WORKDIR /home/openl3
