@@ -71,6 +71,7 @@ setup(
         "scipy>=0.19.1",
         "soundfile",
         "resampy>=0.2.1,<0.3.0",
+        "openl3==0.3.1",
         #'scikit-image>=0.14.3,<0.15.0',
         "torch>=1.4.0",
         "nnAudio",
