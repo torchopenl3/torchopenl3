@@ -28,3 +28,9 @@ docker pull turian/torchopenl3
 #docker build -t turian/torchopenl3 .
 docker run --mount source=`pwd`,target=/home/openl3/,type=bind -it turian/torchopenl3 bash
 ```
+
+Inside docker, run:
+```
+pip3 install -e ".[dev]"
+pytest
+```
