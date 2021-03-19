@@ -6,6 +6,9 @@ import torch
 import requests
 import os
 
+def get_model_path(input_repr,content_type,embedding_size):
+    return os.path.join(os.path.join(os.path.dirname(__file__),input_repr),"openl3_no_mel_layer_pytorch_weights_{}_{}".format(content_type,embedding_size))
+
 
 def get_audio_embedding(
     audio,
@@ -31,7 +34,8 @@ def get_audio_embedding(
         sr_list = [sr] * len(audio_list)
     elif isinstance(sr, list):
         sr_list = sr
-
+    
+    weight_path = get_model_path(input_repr,content_type,embedding_size)
     model = PytorchOpenl3(input_repr, embedding_size, weight_path).eval()
 
     embedding_list = []

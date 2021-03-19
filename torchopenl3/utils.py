@@ -5,7 +5,7 @@ from keras import Model, Input
 import torch
 
 TARGET_SR = 48000
-count = 0
+
 
 
 def center_audio(audio, frame_len):
@@ -40,7 +40,7 @@ def get_num_windows(audio_len, frame_len, hop_len, center):
 def preprocess_audio_batch(
     audio, sr, input_repr, content_type, embedding_size, center=True, hop_size=0.1
 ):
-    global count
+
     if audio.ndim == 2:
         audio = np.mean(audio, axis=1)
 
@@ -70,9 +70,9 @@ def preprocess_audio_batch(
     tf_model = openl3.models.load_audio_embedding_model(
         input_repr=input_repr, content_type=content_type, embedding_size=embedding_size
     )
-    count += 1
-    inp = tf_model.get_layer(f"input_{count}").input
-    oups = tf_model.get_layer(f"melspectrogram_{count}").output
+
+    inp = tf_model.get_input_at(0)
+    oups = tf_model.layers[1].output
     model_mel = Model(inputs=[inp], outputs=oups)
     x = model_mel.predict(x)
 

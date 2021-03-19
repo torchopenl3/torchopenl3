@@ -55,14 +55,14 @@ class TestRegression:
         # gives consistent results, we can remove
         # it later.
         for i in range(n):
-            assert np.mean(np.abs(embeddings1[i] - embeddings0[i])) <= 1e-6
-            assert np.mean(np.abs(ts1[i] - ts0[i])) <= 1e-6
+            assert np.mean(np.abs(embeddings1[i] - embeddings0[i])) <= 1e-4
+            assert np.mean(np.abs(ts1[i] - ts0[i])) <= 1e-4
         embeddings2, ts2 = torchopenl3.get_audio_embedding(
             audios, srs, batch_size=32, **modelparams
         )
         for i in range(n):
-            assert np.mean(np.abs(embeddings1[i] - embeddings2[i])) <= 1e-6
-            assert np.mean(np.abs(ts1[i] - ts2[i])) <= 1e-6
+            assert np.mean(np.abs(embeddings1[i] - embeddings2[i])) <= 1e-4
+            assert np.mean(np.abs(ts1[i] - ts2[i])) <= 1e-4
 
     def test_regression(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
