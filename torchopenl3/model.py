@@ -3,7 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 import numpy as np
-import torchaudio
+from nnAudio import Spectrogram
+import torchlibrosa as tl
 
 def load_weights(weight_file):
     if weight_file == None:
@@ -27,12 +28,18 @@ class PytorchOpenl3(nn.Module):
             "mel256": {512: (32, 24), 6144: (8, 8)},
         }
         if input_repr=='linear':
-            self.speclayer = torchaudio.transforms.Spectrogram(n_fft=512, hop_length=242)
+            self.speclayer = torch.nn.Sequential(
+                                tl.Spectrogram(
+                                    n_fft=512, hop_length=242, win_length=None,
+                                    window='hann', center=True, pad_mode='reflect', power=1.0
+                                ))
         elif input_repr == 'mel128':
-            self.speclayer = torchaudio.transforms.MelSpectrogram(sample_rate=48000, n_fft=2048, n_mels=128, hop_length=242)
+            self.speclayer = Spectrogram.MelSpectrogram(
+                sr=48000, n_fft=2048, n_mels=128, hop_length=242, power=1.0, htk=True)
         else:
-            self.speclayer = torchaudio.transforms.MelSpectrogram(
-                sample_rate=48000, n_fft=2048, n_mels=256, hop_length=242)
+            self.speclayer = Spectrogram.MelSpectrogram(
+                sr=48000, n_fft=2048, n_mels=256, hop_length=242, power=1.0, htk=True)
+            
         self.input_repr = input_repr
         self.embedding_size = embedding_size
         self.batch_normalization_1 = self.__batch_normalization(
@@ -142,6 +149,10 @@ class PytorchOpenl3(nn.Module):
 
     def forward(self, x):
         x = self.speclayer(x)
+        if self.input_repr == 'linear':
+            x = x[:, :, :197, :]
+        else:
+            x = x.unsqueeze(1)
         batch_normalization_1 = self.batch_normalization_1(x)
         conv2d_1_pad = F.pad(batch_normalization_1, (1, 1, 1, 1))
         conv2d_1 = self.conv2d_1(conv2d_1_pad)

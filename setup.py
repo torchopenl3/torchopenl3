@@ -75,6 +75,7 @@ setup(
         "torch>=1.4.0",
         "nnAudio",
         "torchaudio",
+        "torchlibrosa"
     ],
     extras_require={
         "test": [
