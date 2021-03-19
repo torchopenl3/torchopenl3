@@ -1,6 +1,5 @@
 import numpy as np
 import resampy
-import openl3
 from keras import Model, Input
 import torch
 
@@ -67,13 +66,4 @@ def preprocess_audio_batch(
 
     x = x.reshape((x.shape[0], 1, x.shape[-1]))
 
-    tf_model = openl3.models.load_audio_embedding_model(
-        input_repr=input_repr, content_type=content_type, embedding_size=embedding_size
-    )
-
-    inp = tf_model.get_input_at(0)
-    oups = tf_model.layers[1].output
-    model_mel = Model(inputs=[inp], outputs=oups)
-    x = model_mel.predict(x)
-
-    return x.swapaxes(2, 3).swapaxes(1, 2)
+    return x
