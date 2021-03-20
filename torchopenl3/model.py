@@ -23,17 +23,10 @@ class PytorchOpenl3(nn.Module):
         super(PytorchOpenl3, self).__init__()
         self.__weights_dict = load_weights(weight_file)
         self.AUDIO_POOLING_SIZES = {
-            "linear": {512: (32, 24), 6144: (8, 8)},
             "mel128": {512: (16, 24), 6144: (4, 8)},
             "mel256": {512: (32, 24), 6144: (8, 8)},
         }
-        if input_repr=='linear':
-            self.speclayer = torch.nn.Sequential(
-                                tl.Spectrogram(
-                                    n_fft=512, hop_length=242, win_length=None,
-                                    window='hann', center=True, pad_mode='reflect', power=1.0
-                                ))
-        elif input_repr == 'mel128':
+        if input_repr == 'mel128':
             self.speclayer = Spectrogram.MelSpectrogram(
                 sr=48000, n_fft=2048, n_mels=128, hop_length=242, power=1.0, htk=True)
         else:
@@ -149,10 +142,7 @@ class PytorchOpenl3(nn.Module):
 
     def forward(self, x):
         x = self.speclayer(x)
-        if self.input_repr == 'linear':
-            x = x[:, :, :197, :]
-        else:
-            x = x.unsqueeze(1)
+        x = x.unsqueeze(1)
         batch_normalization_1 = self.batch_normalization_1(x)
         conv2d_1_pad = F.pad(batch_normalization_1, (1, 1, 1, 1))
         conv2d_1 = self.conv2d_1(conv2d_1_pad)

@@ -23,6 +23,32 @@ def get_audio_embedding(
     verbose=True,
     weight_path="",
 ):
+    weight_path = get_model_path(input_repr, content_type, embedding_size)
+    model = PytorchOpenl3(input_repr, embedding_size, weight_path).eval()
+    
+    if isinstance(audio,torch.Tensor):
+        if audio.dim() != 3:
+            raise Exception("Sorry, Tensor dim should be 3")
+        else:
+            if audio.size()[2] != 48000:
+                raise Exception("Sorry, Sr should be 48000")
+            else:
+                if audio.is_cuda:
+                    model = model.cuda()
+                total_size = audio.shape[0]
+                audio_embedding = []
+                with torch.set_grad_enabled(False):
+                    for i in range((total_size // batch_size) + 1):
+                        small_batch = audio[i * batch_size: (i + 1) * batch_size]
+                        audio_embedding.append(
+                            model(small_batch))
+                audio_embedding = torch.vstack(audio_embedding)
+                if audio.is_cuda:
+                    ts_list = torch.arange(audio_embedding.size()[0]).cuda()
+                else:
+                    ts_list = torch.arange(audio_embedding.size()[0])
+                return audio_embedding,ts_list
+            
     if isinstance(audio, np.ndarray):
         audio_list = [audio]
         list_input = False
