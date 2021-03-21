@@ -6,9 +6,8 @@ import torch
 import requests
 import os
 
-def get_model_path(input_repr,content_type,embedding_size):
-    return os.path.join(os.path.join(os.path.dirname(__file__),input_repr),"openl3_no_mel_layer_pytorch_weights_{}_{}".format(content_type,embedding_size))
-
+def get_model_path(input_repr,embedding_size):
+    return os.path.join(os.path.dirname(__file__), "torchopenl3_{}_{}.pt".format(input_repr,embedding_size))
 
 def get_audio_embedding(
     audio,
@@ -23,9 +22,10 @@ def get_audio_embedding(
     verbose=True,
     weight_path="",
 ):
-    weight_path = get_model_path(input_repr, content_type, embedding_size)
-    model = PytorchOpenl3(input_repr, embedding_size, weight_path).eval()
-    
+    weight_path = get_model_path(input_repr,embedding_size)
+    model = PytorchOpenl3(input_repr, embedding_size)
+    model.load_state_dict(torch.load(weight_path))
+    model = model.eval()
     if isinstance(audio, np.ndarray):
         audio = torch.Tensor(audio)
         if torch.cuda.is_available():
