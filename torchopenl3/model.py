@@ -5,6 +5,7 @@ import math
 import numpy as np
 from nnAudio import Spectrogram
 
+
 def load_weights(weight_file):
     if weight_file == None:
         return
@@ -22,16 +23,24 @@ class PytorchOpenl3(nn.Module):
         super(PytorchOpenl3, self).__init__()
         self.__weights_dict = load_weights(weight_file)
         self.AUDIO_POOLING_SIZES = {
+            "linear": {
+                6144: (8, 8),
+                512: (32, 24),
+            },
             "mel128": {512: (16, 24), 6144: (4, 8)},
             "mel256": {512: (32, 24), 6144: (8, 8)},
         }
-        if input_repr == 'mel128':
+        if input_repr == "linear":
+            raise ValueError("Need to fix spectrogram padding")
+        elif input_repr == "mel128":
             self.speclayer = Spectrogram.MelSpectrogram(
-                sr=48000, n_fft=2048, n_mels=128, hop_length=242, power=1.0, htk=True)
-        else:
+                sr=48000, n_fft=2048, n_mels=128, hop_length=242, power=1.0, htk=True
+            )
+        elif input_repr == "mel256":
             self.speclayer = Spectrogram.MelSpectrogram(
-                sr=48000, n_fft=2048, n_mels=256, hop_length=242, power=1.0, htk=True)
-            
+                sr=48000, n_fft=2048, n_mels=256, hop_length=242, power=1.0, htk=True
+            )
+
         self.input_repr = input_repr
         self.embedding_size = embedding_size
         self.batch_normalization_1 = self.__batch_normalization(

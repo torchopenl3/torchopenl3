@@ -25,11 +25,11 @@ AUDIO_URLS = [
 AUDIO_MODEL_PARAMS = {
     "content_type": ["env", "music"],
     # "input_repr": ["linear","mel128", "mel256"],
-    '''
+    """
     We didn't include linear here because openl3 using kapre old for extarcting specotragram which
     is the shape of (None,237,197,1) but in torchaudio torchlibrosa nnAudio gives (None,237,199,1)
     So we decide not to include linear model for now.
-    '''
+    """
     "input_repr": ["mel128", "mel256"],
     "embedding_size": [512, 6144],
     "verbose": [0, 1],
@@ -67,12 +67,13 @@ class TestRegression:
             audios, srs, batch_size=32, **modelparams
         )
         for i in range(n):
-            '''
-            We increase the compare paremeter as kapre in openl3 and nnAudio in torchopenl3 giving 
-            more mean error. We can expect a prrety good result when we will pretrain model
-            '''
-            assert np.mean(np.abs(embeddings1[i] - embeddings2[i])) <= 2
-            assert np.mean(np.abs(ts1[i] - ts2[i])) <= 2
+            """
+            We increase the epsilon between openl3 and torchopenl3,
+            because the spectrogram STFT implementations differ in small
+            ways, and there tends to be more error in high hz areas.
+            """
+            assert np.mean(np.abs(embeddings1[i] - embeddings2[i])) <= 1e-4
+            assert np.mean(np.abs(ts1[i] - ts2[i])) <= 1e-4
 
     def test_regression(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
