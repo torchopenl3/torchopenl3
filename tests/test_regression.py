@@ -8,6 +8,7 @@ import pytest
 import requests
 import soundfile as sf
 import torch
+import torch.tensor as T
 from tqdm.auto import tqdm
 
 import torchopenl3
