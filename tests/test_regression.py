@@ -24,13 +24,7 @@ AUDIO_URLS = [
 
 AUDIO_MODEL_PARAMS = {
     "content_type": ["env", "music"],
-    # "input_repr": ["linear","mel128", "mel256"],
-    """
-    We didn't include linear here because openl3 using kapre old for extarcting specotragram which
-    is the shape of (None,237,197,1) but in torchaudio torchlibrosa nnAudio gives (None,237,199,1)
-    So we decide not to include linear model for now.
-    """
-    "input_repr": ["mel128", "mel256"],
+    "input_repr": ["linear","mel128", "mel256"],
     "embedding_size": [512, 6144],
     "verbose": [0, 1],
     "center": [True, False],
@@ -63,8 +57,8 @@ class TestRegression:
         for i in range(n):
             assert embeddings1[0].shape == embeddings0[0].shape
             assert embeddings1[1].shape == embeddings0[1].shape
-            assert torch.mean(torch.abs(embeddings1[i] - embeddings0[i])) <= 1e-6
-            assert torch.mean(torch.abs(ts1[i] - ts0[i])) <= 1e-6
+            assert torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings0[i]))) <= 1e-6
+            assert torch.mean(torch.abs(T(ts1[i]) - T(ts0[i]))) <= 1e-6
         embeddings2, ts2 = torchopenl3.get_audio_embedding(
             audios, srs, batch_size=32, **modelparams
         )
@@ -75,8 +69,8 @@ class TestRegression:
             """
             assert embeddings1[0].shape == embeddings2[0].shape
             assert embeddings1[1].shape == embeddings2[1].shape
-            assert torch.mean(torch.abs(embeddings1[i] - embeddings2[i])) <= 2
-            assert torch.mean(torch.abs(ts1[i] - ts2[i])) <= 2
+            assert torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i]))) <= 2
+            assert torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))) <= 2
 
     def test_regression(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
