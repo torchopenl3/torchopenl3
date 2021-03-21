@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 #from nnAudio import Spectrogram
 
-from custom_spectrogram import CustomSpectrogram
+from torchopenl3.custom_spectrogram import CustomSpectrogram
 
 
 class PytorchOpenl3(nn.Module):
