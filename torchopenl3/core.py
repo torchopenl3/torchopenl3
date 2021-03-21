@@ -3,7 +3,7 @@ from .model import PytorchOpenl3
 from .utils import preprocess_audio_batch
 from numbers import Real
 import torch
-import requests
+#import requests
 import os
 
 
@@ -27,7 +27,7 @@ def get_audio_embedding(
     verbose=True,
     weight_path="",
 ):
-    if model == None:
+    if model is None:
         weight_path = get_model_path(input_repr, content_type, embedding_size)
         model = PytorchOpenl3(input_repr, embedding_size)
         model.load_state_dict(torch.load(weight_path))
