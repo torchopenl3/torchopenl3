@@ -12,7 +12,7 @@ class PytorchOpenl3(nn.Module):
             "mel128": {512: (16, 24), 6144: (4, 8)},
             "mel256": {512: (32, 24), 6144: (8, 8)},
         }
-        self.speclayer = CustomSpectrogram(input_repr, n_fft = 512, n_hop = 242, asr = 48000)
+        self.speclayer = CustomSpectrogram(input_repr, n_fft=512, n_hop=242, asr=48000)
         self.input_repr = input_repr
         self.embedding_size = embedding_size
         self.batch_normalization_1 = self.__batch_normalization(
@@ -162,8 +162,7 @@ class PytorchOpenl3(nn.Module):
         batch_normalization_8 = self.batch_normalization_8(conv2d_7)
         activation_7 = F.relu(batch_normalization_8)
         audio_embedding_layer_pad = F.pad(activation_7, (1, 1, 1, 1))
-        audio_embedding_layer = self.audio_embedding_layer(
-            audio_embedding_layer_pad)
+        audio_embedding_layer = self.audio_embedding_layer(audio_embedding_layer_pad)
         max_pooling2d_4 = F.max_pool2d(
             audio_embedding_layer,
             kernel_size=self.AUDIO_POOLING_SIZES[self.input_repr][self.embedding_size],

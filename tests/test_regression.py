@@ -7,6 +7,7 @@ import openl3
 import pytest
 import requests
 import soundfile as sf
+import torch
 from tqdm.auto import tqdm
 
 import torchopenl3
@@ -24,7 +25,7 @@ AUDIO_URLS = [
 
 AUDIO_MODEL_PARAMS = {
     "content_type": ["env", "music"],
-    "input_repr": ["linear","mel128", "mel256"],
+    "input_repr": ["linear", "mel128", "mel256"],
     "embedding_size": [512, 6144],
     "verbose": [0, 1],
     "center": [True, False],

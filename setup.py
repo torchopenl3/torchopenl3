@@ -73,7 +73,7 @@ setup(
         "resampy>=0.2.1,<0.3.0",
         #'scikit-image>=0.14.3,<0.15.0',
         "torch>=1.4.0",
-        "nnAudio",
+        "nnAudio==0.2.2",
         "julius",
     ],
     extras_require={
