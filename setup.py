@@ -74,6 +74,7 @@ setup(
         #'scikit-image>=0.14.3,<0.15.0',
         "torch>=1.4.0",
         "nnAudio",
+        "julius",
     ],
     extras_require={
         "test": [
