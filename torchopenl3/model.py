@@ -4,7 +4,6 @@ import torch.nn.functional as F
 import math
 import numpy as np
 from nnAudio import Spectrogram
-import torchlibrosa as tl
 
 def load_weights(weight_file):
     if weight_file == None:
