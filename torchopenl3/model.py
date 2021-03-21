@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from nnAudio import Spectrogram
 
+
 class PytorchOpenl3(nn.Module):
     def __init__(self, input_repr, embedding_size):
         super(PytorchOpenl3, self).__init__()
