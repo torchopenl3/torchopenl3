@@ -13,7 +13,8 @@ def load_weights(weight_file):
     try:
         weights_dict = np.load(weight_file, allow_pickle=True).item()
     except:
-        weights_dict = np.load(weight_file, encoding="bytes", allow_pickle=True).item()
+        weights_dict = np.load(
+            weight_file, encoding="bytes", allow_pickle=True).item()
 
     return weights_dict
 
@@ -187,7 +188,8 @@ class PytorchOpenl3(nn.Module):
         batch_normalization_8 = self.batch_normalization_8(conv2d_7)
         activation_7 = F.relu(batch_normalization_8)
         audio_embedding_layer_pad = F.pad(activation_7, (1, 1, 1, 1))
-        audio_embedding_layer = self.audio_embedding_layer(audio_embedding_layer_pad)
+        audio_embedding_layer = self.audio_embedding_layer(
+            audio_embedding_layer_pad)
         max_pooling2d_4 = F.max_pool2d(
             audio_embedding_layer,
             kernel_size=self.AUDIO_POOLING_SIZES[self.input_repr][self.embedding_size],

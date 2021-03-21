@@ -1,4 +1,4 @@
-import numpy as np
+import math
 import julius
 import torch
 
@@ -15,7 +15,7 @@ def pad_audio(audio, frame_len, hop_len):
         pad_length = frame_len - audio_len
     else:
         pad_length = int(
-            np.ceil((audio_len - frame_len) / float(hop_len))
+            math.ceil((audio_len - frame_len) / float(hop_len))
         ) * hop_len - (audio_len - frame_len)
 
     if pad_length > 0:
@@ -32,7 +32,7 @@ def get_num_windows(audio_len, frame_len, hop_len, center):
     if audio_len <= frame_len:
         return 1
     else:
-        return 1 + int(np.ceil((audio_len - frame_len) / float(hop_len)))
+        return 1 + int(math.ceil((audio_len - frame_len) / float(hop_len)))
 
 
 def preprocess_audio_batch(audio, sr, center=True, hop_size=0.1):
