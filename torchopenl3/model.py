@@ -23,10 +23,7 @@ class PytorchOpenl3(nn.Module):
         super(PytorchOpenl3, self).__init__()
         self.__weights_dict = load_weights(weight_file)
         self.AUDIO_POOLING_SIZES = {
-            "linear": {
-                6144: (8, 8),
-                512: (32, 24),
-            },
+            "linear": {512: (32, 24), 6144: (8, 8)},
             "mel128": {512: (16, 24), 6144: (4, 8)},
             "mel256": {512: (32, 24), 6144: (8, 8)},
         }
