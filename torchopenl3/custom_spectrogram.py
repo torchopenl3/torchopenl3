@@ -7,7 +7,9 @@ import nnAudio.Spectrogram
 
 class CustomSpectrogram(nn.Module):
     """
-    Custom Spectrogram implemented to replicate behaviour of kapre 0.1.4
+    Custom Spectrogram implemented to mimic---but unfortunately not
+    completely replicate---behavior of kapre 0.1.4, which is required
+    by openl3 0.3.1
 
     Attributes
     ----------
