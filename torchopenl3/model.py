@@ -1,27 +1,11 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import math
-import numpy as np
 from nnAudio import Spectrogram
 
-
-def load_weights(weight_file):
-    if weight_file == None:
-        return
-
-    try:
-        weights_dict = np.load(weight_file, allow_pickle=True).item()
-    except:
-        weights_dict = np.load(weight_file, encoding="bytes", allow_pickle=True).item()
-
-    return weights_dict
-
-
 class PytorchOpenl3(nn.Module):
-    def __init__(self, input_repr, embedding_size, weight_file):
+    def __init__(self, input_repr, embedding_size):
         super(PytorchOpenl3, self).__init__()
-        self.__weights_dict = load_weights(weight_file)
         self.AUDIO_POOLING_SIZES = {
             "linear": {512: (32, 24), 6144: (8, 8)},
             "mel128": {512: (16, 24), 6144: (4, 8)},
@@ -187,7 +171,8 @@ class PytorchOpenl3(nn.Module):
         batch_normalization_8 = self.batch_normalization_8(conv2d_7)
         activation_7 = F.relu(batch_normalization_8)
         audio_embedding_layer_pad = F.pad(activation_7, (1, 1, 1, 1))
-        audio_embedding_layer = self.audio_embedding_layer(audio_embedding_layer_pad)
+        audio_embedding_layer = self.audio_embedding_layer(
+            audio_embedding_layer_pad)
         max_pooling2d_4 = F.max_pool2d(
             audio_embedding_layer,
             kernel_size=self.AUDIO_POOLING_SIZES[self.input_repr][self.embedding_size],
@@ -206,27 +191,6 @@ class PytorchOpenl3(nn.Module):
             layer = nn.BatchNorm3d(**kwargs)
         else:
             raise NotImplementedError()
-
-        if "scale" in self.__weights_dict[name]:
-            layer.state_dict()["weight"].copy_(
-                torch.from_numpy(self.__weights_dict[name]["scale"])
-            )
-        else:
-            layer.weight.data.fill_(1)
-
-        if "bias" in self.__weights_dict[name]:
-            layer.state_dict()["bias"].copy_(
-                torch.from_numpy(self.__weights_dict[name]["bias"])
-            )
-        else:
-            layer.bias.data.fill_(0)
-
-        layer.state_dict()["running_mean"].copy_(
-            torch.from_numpy(self.__weights_dict[name]["mean"])
-        )
-        layer.state_dict()["running_var"].copy_(
-            torch.from_numpy(self.__weights_dict[name]["var"])
-        )
         return layer
 
     def __conv(self, dim, name, **kwargs):
@@ -238,12 +202,4 @@ class PytorchOpenl3(nn.Module):
             layer = nn.Conv3d(**kwargs)
         else:
             raise NotImplementedError()
-
-        layer.state_dict()["weight"].copy_(
-            torch.from_numpy(self.__weights_dict[name]["weights"])
-        )
-        if "bias" in self.__weights_dict[name]:
-            layer.state_dict()["bias"].copy_(
-                torch.from_numpy(self.__weights_dict[name]["bias"])
-            )
         return layer
