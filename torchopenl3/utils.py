@@ -46,7 +46,8 @@ def preprocess_audio_batch(audio, sr, center=True, hop_size=0.1):
     if sr != TARGET_SR:
         audio = julius.resample_frac(audio, sr, TARGET_SR)
 
-    audio_len = audio.size()[0]
+    # Why not used?
+    # audio_len = audio.size()[0]
     frame_len = TARGET_SR
     hop_len = int(hop_size * TARGET_SR)
 

@@ -62,7 +62,8 @@ class CustomSpectrogram(nn.Module):
 
     def forward(self, x):
         """
-        Convert a batch of waveforms to Mel spectrograms or spectrogram depening on the type.
+    	Convert a batch of waveforms to Mel spectrograms or spectrogram
+    	depening on the type.
 
         Parameters
         ----------
