@@ -15,6 +15,16 @@ def get_model_path(input_repr, content_type, embedding_size):
     )
 
 
+def load_np_weights(weight_file):
+    if weight_file == None:
+        return
+    try:
+        weights_dict = np.load(weight_file, allow_pickle=True).item()
+    except:
+        weights_dict = np.load(weight_file, encoding="bytes", allow_pickle=True).item()
+    return weights_dict
+
+
 def get_audio_embedding(
     audio,
     sr,
@@ -29,9 +39,17 @@ def get_audio_embedding(
     weight_path="",
 ):
     if model is None:
-        weight_path = get_model_path(input_repr, content_type, embedding_size)
         model = PytorchOpenl3(input_repr, embedding_size)
-        model.load_state_dict(torch.load(weight_path))
+        try:
+            weight_path = get_model_path(input_repr, content_type, embedding_size)
+            model.load_state_dict(torch.load(weight_path))
+        except:
+            wd = os.path.split(os.path.normcase(__file__))[0]
+            # 6144 and 512 weights are the same
+            npweights = load_np_weights(
+                f"{wd}/{input_repr}/openl3_no_mel_layer_pytorch_weights_{content_type}_512"
+            )
+
         model = model.eval()
 
     if isinstance(audio, np.ndarray):
