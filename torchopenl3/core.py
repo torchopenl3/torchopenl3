@@ -3,12 +3,17 @@ from .model import PytorchOpenl3
 from .utils import preprocess_audio_batch
 from numbers import Real
 import torch
-import requests
+
+# import requests
 import os
 
 
-def get_model_path(input_repr,content_type, embedding_size):
-    return os.path.join(os.path.dirname(__file__), "torchopenl3_{}_{}_{}.pth".format(input_repr, content_type,embedding_size))
+def get_model_path(input_repr, content_type, embedding_size):
+    return os.path.join(
+        os.path.dirname(__file__),
+        "torchopenl3_{}_{}_{}.pth".format(input_repr, content_type, embedding_size),
+    )
+
 
 def get_audio_embedding(
     audio,
@@ -23,41 +28,40 @@ def get_audio_embedding(
     verbose=True,
     weight_path="",
 ):
-    if model==None:
-        weight_path = get_model_path(input_repr, content_type,embedding_size)
+    if model is None:
+        weight_path = get_model_path(input_repr, content_type, embedding_size)
         model = PytorchOpenl3(input_repr, embedding_size)
         model.load_state_dict(torch.load(weight_path))
         model = model.eval()
-        
+
     if isinstance(audio, np.ndarray):
         audio = torch.Tensor(audio)
         if torch.cuda.is_available():
             audio = audio.cuda()
-    if isinstance(audio,torch.Tensor):
+    if isinstance(audio, torch.Tensor):
         if audio.is_cuda:
             model = model.cuda()
-        audio = preprocess_audio_batch(audio,sr,center,hop_size)
+        audio = preprocess_audio_batch(audio, sr, center, hop_size)
         total_size = audio.size()[0]
         audio_embedding = []
         with torch.set_grad_enabled(False):
             for i in range((total_size // batch_size) + 1):
-                small_batch = audio[i * batch_size: (i + 1) * batch_size]
-                audio_embedding.append(
-                    model(small_batch))
+                small_batch = audio[i * batch_size : (i + 1) * batch_size]
+                audio_embedding.append(model(small_batch))
         audio_embedding = torch.vstack(audio_embedding)
         if audio.is_cuda:
             ts_list = torch.arange(audio_embedding.size()[0]).cuda()
         else:
             ts_list = torch.arange(audio_embedding.size()[0])
-        return audio_embedding,ts_list
-            
+        return audio_embedding, ts_list
+
     if isinstance(audio, list):
         audio_list = audio
         if isinstance(sr, Real):
             sr_list = [sr] * len(audio_list)
         elif isinstance(sr, list):
             sr_list = sr
-            
+
         embedding_list = []
         ts_list = []
 
@@ -65,10 +69,7 @@ def get_audio_embedding(
         file_batch_size_list = []
         for audio, sr in zip(audio_list, sr_list):
             x = preprocess_audio_batch(
-                torch.Tensor(audio),
-                sr,
-                hop_size=hop_size,
-                center=center
+                torch.Tensor(audio), sr, hop_size=hop_size, center=center
             )
             batch.append(x)
             file_batch_size_list.append(x.size()[0])
