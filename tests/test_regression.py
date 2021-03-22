@@ -7,6 +7,8 @@ import openl3
 import pytest
 import requests
 import soundfile as sf
+import torch
+import torch.tensor as T
 from tqdm.auto import tqdm
 
 import torchopenl3
@@ -22,16 +24,7 @@ AUDIO_URLS = [
     "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/silence.wav",
 ]
 
-AUDIO_MODEL_PARAMS = {
-    "content_type": ["env", "music"],
-    # "input_repr": ["linear","mel128", "mel256"],
-    """
-    We didn't include linear here because openl3 using kapre old for extarcting specotragram which
-    is the shape of (None,237,197,1) but in torchaudio torchlibrosa nnAudio gives (None,237,199,1)
-    So we decide not to include linear model for now.
-    """
-    "input_repr": ["mel128", "mel256"],
-    "embedding_size": [512, 6144],
+CHECK_AUDIO_MODEL_PARAMS = {
     "verbose": [0, 1],
     "center": [True, False],
     "hop_size": [0.1, 0.5],
@@ -63,8 +56,8 @@ class TestRegression:
         for i in range(n):
             assert embeddings1[0].shape == embeddings0[0].shape
             assert embeddings1[1].shape == embeddings0[1].shape
-            assert torch.mean(torch.abs(embeddings1[i] - embeddings0[i])) <= 1e-6
-            assert torch.mean(torch.abs(ts1[i] - ts0[i])) <= 1e-6
+            assert torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings0[i]))) <= 1e-6
+            assert torch.mean(torch.abs(T(ts1[i]) - T(ts0[i]))) <= 1e-6
         embeddings2, ts2 = torchopenl3.get_audio_embedding(
             audios, srs, batch_size=32, **modelparams
         )
@@ -73,12 +66,17 @@ class TestRegression:
             We increase the compare paremeter as kapre in openl3 and nnAudio in torchopenl3 giving
             more mean error. We can expect a prrety good result when we will pretrain model
             """
+            print(embeddings1[0].shape, embeddings2[0].shape)
+            print(embeddings1[1].shape, embeddings2[1].shape)
+            print(torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))))
+            print(torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i]))))
+            print(torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))))
             assert embeddings1[0].shape == embeddings2[0].shape
             assert embeddings1[1].shape == embeddings2[1].shape
-            assert torch.mean(torch.abs(embeddings1[i] - embeddings2[i])) <= 2
-            assert torch.mean(torch.abs(ts1[i] - ts2[i])) <= 2
+            assert torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i]))) <= 1e-4
+            assert torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))) <= 1e-4
 
-    def test_regression(self):
+    def _test_regression(self, **kwargs):
         with tempfile.TemporaryDirectory() as tmpdirname:
             filenames = []
             for url in AUDIO_URLS:
@@ -88,8 +86,44 @@ class TestRegression:
                 filenames.append(filename)
 
             modelparamlist = [
-                dict(zip(AUDIO_MODEL_PARAMS.keys(), p))
-                for p in itertools.product(*list(AUDIO_MODEL_PARAMS.values()))
+                dict(zip(CHECK_AUDIO_MODEL_PARAMS.keys(), p), **kwargs)
+                for p in itertools.product(*list(CHECK_AUDIO_MODEL_PARAMS.values()))
             ]
             for modelparams in tqdm(modelparamlist):
                 self.check_model_for_regression(modelparams, filenames)
+
+    def test_regression_env_linear_512(self):
+        self._test_regression(env="env", input_repr="linear", embedding_size=512)
+
+    def test_regression_music_linear_512(self):
+        self._test_regression(env="music", input_repr="linear", embedding_size=512)
+
+    def test_regression_env_mel128_512(self):
+        self._test_regression(env="env", input_repr="mel128", embedding_size=512)
+
+    def test_regression_music_mel128_512(self):
+        self._test_regression(env="music", input_repr="mel128", embedding_size=512)
+
+    def test_regression_env_mel256_512(self):
+        self._test_regression(env="env", input_repr="mel256", embedding_size=512)
+
+    def test_regression_music_mel256_512(self):
+        self._test_regression(env="music", input_repr="mel256", embedding_size=512)
+
+    def test_regression_env_linear_6144(self):
+        self._test_regression(env="env", input_repr="linear", embedding_size=6144)
+
+    def test_regression_music_linear_6144(self):
+        self._test_regression(env="music", input_repr="linear", embedding_size=6144)
+
+    def test_regression_env_mel128_6144(self):
+        self._test_regression(env="env", input_repr="mel128", embedding_size=6144)
+
+    def test_regression_music_mel128_6144(self):
+        self._test_regression(env="music", input_repr="mel128", embedding_size=6144)
+
+    def test_regression_env_mel256_6144(self):
+        self._test_regression(env="env", input_repr="mel256", embedding_size=6144)
+
+    def test_regression_music_mel256_6144(self):
+        self._test_regression(env="music", input_repr="mel256", embedding_size=6144)
