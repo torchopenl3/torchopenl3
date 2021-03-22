@@ -102,7 +102,8 @@ class CustomSpectrogram(nn.Module):
 
 
 class PytorchOpenl3(nn.Module):
-    def __init__(self, input_repr, embedding_size):
+    def __init__(self, content_type, input_repr, embedding_size):
+        # Note: content_type is unused
         super(PytorchOpenl3, self).__init__()
         self.AUDIO_POOLING_SIZES = {
             "linear": {512: (32, 24), 6144: (8, 8)},

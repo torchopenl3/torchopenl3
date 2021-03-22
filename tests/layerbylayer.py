@@ -30,17 +30,11 @@ AUDIO_URLS = [
 
 AUDIO_MODEL_PARAMS = {
     "content_type": ["env", "music"],
-    # "input_repr": ["linear","mel128", "mel256"],
-    """
-    We didn't include linear here because openl3 using kapre old for extarcting specotragram which
-    is the shape of (None,237,197,1) but in torchaudio torchlibrosa nnAudio gives (None,237,199,1)
-    So we decide not to include linear model for now.
-    """
     "input_repr": ["linear", "mel128", "mel256"],
     "embedding_size": [512, 6144],
     # "verbose": [0, 1],
-    "center": [True, False],
-    "hop_size": [0.1, 0.5],
+    # "center": [True, False],
+    # "hop_size": [0.1, 0.5],
 }
 
 TARGET_SR = 48000
@@ -157,9 +151,7 @@ class LayerByLayer:
         openl3_model = Model(inputs=[inp], outputs=oups)
 
         # Torchopenl3 Model
-        torchopenl3_model = torchopenl3.model.PytorchOpenl3(
-            modelparams[0], modelparams[2]
-        )
+        torchopenl3_model = torchopenl3.model.PytorchOpenl3(**modelparams)
         torchopenl3_model.load_state_dict(
             torch.load(torchopenl3.core.get_model_path(**modelparams))
         )
@@ -204,4 +196,4 @@ class LayerByLayer:
 
 if __name__ == "__main__":
     lbl = LayerByLayer()
-    lbl()
+    lbl.test_regression()
