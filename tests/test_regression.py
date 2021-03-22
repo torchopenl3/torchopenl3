@@ -66,10 +66,15 @@ class TestRegression:
             We increase the compare paremeter as kapre in openl3 and nnAudio in torchopenl3 giving
             more mean error. We can expect a prrety good result when we will pretrain model
             """
+            print(embeddings1[0].shape, embeddings2[0].shape)
+            print(embeddings1[1].shape, embeddings2[1].shape)
+            print(torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))))
+            print(torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i]))))
+            print(torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))))
             assert embeddings1[0].shape == embeddings2[0].shape
             assert embeddings1[1].shape == embeddings2[1].shape
-            assert torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i]))) <= 2
-            assert torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))) <= 2
+            assert torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i]))) <= 1e-4
+            assert torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))) <= 1e-4
 
     def _test_regression(self, **kwargs):
         with tempfile.TemporaryDirectory() as tmpdirname:
@@ -88,37 +93,61 @@ class TestRegression:
                 self.check_model_for_regression(modelparams, filenames)
 
     def test_regression_env_linear_512(self):
-        self._test_regression(env="env", input_repr="linear", embedding_size=512)
+        self._test_regression(
+            content_type="env", input_repr="linear", embedding_size=512
+        )
 
     def test_regression_music_linear_512(self):
-        self._test_regression(env="music", input_repr="linear", embedding_size=512)
+        self._test_regression(
+            content_type="music", input_repr="linear", embedding_size=512
+        )
 
     def test_regression_env_mel128_512(self):
-        self._test_regression(env="env", input_repr="mel128", embedding_size=512)
+        self._test_regression(
+            content_type="env", input_repr="mel128", embedding_size=512
+        )
 
     def test_regression_music_mel128_512(self):
-        self._test_regression(env="music", input_repr="mel128", embedding_size=512)
+        self._test_regression(
+            content_type="music", input_repr="mel128", embedding_size=512
+        )
 
     def test_regression_env_mel256_512(self):
-        self._test_regression(env="env", input_repr="mel256", embedding_size=512)
+        self._test_regression(
+            content_type="env", input_repr="mel256", embedding_size=512
+        )
 
     def test_regression_music_mel256_512(self):
-        self._test_regression(env="music", input_repr="mel256", embedding_size=512)
+        self._test_regression(
+            content_type="music", input_repr="mel256", embedding_size=512
+        )
 
     def test_regression_env_linear_6144(self):
-        self._test_regression(env="env", input_repr="linear", embedding_size=6144)
+        self._test_regression(
+            content_type="env", input_repr="linear", embedding_size=6144
+        )
 
     def test_regression_music_linear_6144(self):
-        self._test_regression(env="music", input_repr="linear", embedding_size=6144)
+        self._test_regression(
+            content_type="music", input_repr="linear", embedding_size=6144
+        )
 
     def test_regression_env_mel128_6144(self):
-        self._test_regression(env="env", input_repr="mel128", embedding_size=6144)
+        self._test_regression(
+            content_type="env", input_repr="mel128", embedding_size=6144
+        )
 
     def test_regression_music_mel128_6144(self):
-        self._test_regression(env="music", input_repr="mel128", embedding_size=6144)
+        self._test_regression(
+            content_type="music", input_repr="mel128", embedding_size=6144
+        )
 
     def test_regression_env_mel256_6144(self):
-        self._test_regression(env="env", input_repr="mel256", embedding_size=6144)
+        self._test_regression(
+            content_type="env", input_repr="mel256", embedding_size=6144
+        )
 
     def test_regression_music_mel256_6144(self):
-        self._test_regression(env="music", input_repr="mel256", embedding_size=6144)
+        self._test_regression(
+            content_type="music", input_repr="mel256", embedding_size=6144
+        )
