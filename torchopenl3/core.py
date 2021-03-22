@@ -73,6 +73,22 @@ def get_audio_embedding(
             update_batch_norm(model.batch_normalization_7, "batch_normalization_7")
             update_batch_norm(model.batch_normalization_8, "batch_normalization_8")
 
+            def update_conv(layer, name):
+                layer.state_dict()["weight"].copy_(
+                    torch.from_numpy(npweights[name]["weights"])
+                )
+                layer.state_dict()["bias"].copy_(
+                    torch.from_numpy(npweights[name]["bias"])
+                )
+
+            update_conv(model.conv2d_1, "conv2d_1")
+            update_conv(model.conv2d_2, "conv2d_2")
+            update_conv(model.conv2d_3, "conv2d_3")
+            update_conv(model.conv2d_4, "conv2d_4")
+            update_conv(model.conv2d_5, "conv2d_5")
+            update_conv(model.conv2d_6, "conv2d_6")
+            update_conv(model.conv2d_7, "conv2d_7")
+
         model = model.eval()
 
     if isinstance(audio, np.ndarray):
