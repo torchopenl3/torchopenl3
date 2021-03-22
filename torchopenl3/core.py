@@ -50,6 +50,29 @@ def get_audio_embedding(
                 f"{wd}/{input_repr}/openl3_no_mel_layer_pytorch_weights_{content_type}_512"
             )
 
+            def update_batch_norm(layer, name):
+                layer.state_dict()["weight"].copy_(
+                    torch.from_numpy(npweights[name]["scale"])
+                )
+                layer.state_dict()["bias"].copy_(
+                    torch.from_numpy(npweights[name]["bias"])
+                )
+                layer.state_dict()["running_mean"].copy_(
+                    torch.from_numpy(npweights[name]["mean"])
+                )
+                layer.state_dict()["running_var"].copy_(
+                    torch.from_numpy(npweights[name]["var"])
+                )
+
+            update_batch_norm(model.batch_normalization_1, "batch_normalization_1")
+            update_batch_norm(model.batch_normalization_2, "batch_normalization_2")
+            update_batch_norm(model.batch_normalization_3, "batch_normalization_3")
+            update_batch_norm(model.batch_normalization_4, "batch_normalization_4")
+            update_batch_norm(model.batch_normalization_5, "batch_normalization_5")
+            update_batch_norm(model.batch_normalization_6, "batch_normalization_6")
+            update_batch_norm(model.batch_normalization_7, "batch_normalization_7")
+            update_batch_norm(model.batch_normalization_8, "batch_normalization_8")
+
         model = model.eval()
 
     if isinstance(audio, np.ndarray):
