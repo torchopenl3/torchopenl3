@@ -151,11 +151,12 @@ class LayerByLayer:
         openl3_model = Model(inputs=[inp], outputs=oups)
 
         # Torchopenl3 Model
-        torchopenl3_model = torchopenl3.model.PytorchOpenl3(**modelparams)
-        torchopenl3_model.load_state_dict(
-            torch.load(torchopenl3.core.get_model_path(**modelparams))
-        )
-        torchopenl3_model = torchopenl3_model.eval()
+        torchopenl3_model = torchopenl3.core.load_model(**modelparams)
+        #        torchopenl3_model = torchopenl3.model.PytorchOpenl3(**modelparams)
+        #        torchopenl3_model.load_state_dict(
+        #            torch.load(torchopenl3.core.get_model_path(**modelparams))
+        #        )
+        #        torchopenl3_model = torchopenl3_model.eval()
 
         # Openl3 Model All layers output
         openl3_output = openl3_model.predict(batch)
