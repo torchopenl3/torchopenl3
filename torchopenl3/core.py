@@ -49,7 +49,7 @@ def get_audio_embedding(
                 os.path.join(
                     wd,
                     input_repr,
-                    "openl3_no_mel_layer_pytorch_weights_{content_type}_512",
+                    f"openl3_no_mel_layer_pytorch_weights_{content_type}_512",
                 )
             )
 
