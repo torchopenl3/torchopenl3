@@ -47,11 +47,9 @@ def get_audio_embedding(
             # 6144 and 512 weights are the same
             npweights = load_np_weights(
                 os.path.join(
-                    [
-                        wd,
-                        input_repr,
-                        "openl3_no_mel_layer_pytorch_weights_{content_type}_512",
-                    ]
+                    wd,
+                    input_repr,
+                    "openl3_no_mel_layer_pytorch_weights_{content_type}_512",
                 )
             )
 
