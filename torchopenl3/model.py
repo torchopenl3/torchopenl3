@@ -1,9 +1,65 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch import tensor as T
 from nnAudio import Spectrogram
+import librosa
 
 
+class LinearSpectrogram(nn.Module):
+
+    def __init__(self, n_fft, n_hop, asr):
+        super().__init__()
+        self.stft = Spectrogram.STFT(
+            n_fft=n_fft,
+            win_length=None,
+            freq_bins=None,
+            hop_length=n_hop,
+            window="hann",
+            freq_scale="no",
+            center=False,
+            pad_mode=None,
+            iSTFT=False,
+            fmin=0,
+            fmax=asr // 2,
+            sr=asr,
+            trainable=False,
+            output_format="Magnitude",
+            verbose=False,
+        )
+
+    def forward(self, x):
+        """
+        Convert a batch of waveforms to Mel spectrograms or spectrogram
+        depening on the type.
+        Parameters
+        ----------
+        x : torch tensor
+        """
+
+        x_stft = self.stft(x)
+        return self.amplitude_to_decibel(x_stft)
+
+    def amplitude_to_decibel(self, x, amin=1e-10, dynamic_range=80.0):
+        """
+        Convert (linear) amplitude to decibel (log10(x)).
+        Implemented similar to kapre-0.1.4
+        """
+
+        log_spec = (
+            T(10.0, dtype=torch.float32)
+            * torch.log(torch.maximum(x, T(amin)))
+            / torch.log(T(10.0, dtype=torch.float32))
+        )
+        if x.ndim > 1:
+            axis = tuple(range(x.ndim)[1:])
+        else:
+            axis = None
+
+        log_spec = log_spec - torch.amax(log_spec, dim=axis, keepdims=True)
+        log_spec = torch.maximum(log_spec, T(-1 * dynamic_range))
+        return log_spec
+    
 class PytorchOpenl3(nn.Module):
     def __init__(self, input_repr, embedding_size):
         super(PytorchOpenl3, self).__init__()
@@ -13,7 +69,8 @@ class PytorchOpenl3(nn.Module):
             "mel256": {512: (32, 24), 6144: (8, 8)},
         }
         if input_repr == "linear":
-            raise ValueError("Need to fix spectrogram padding")
+            self.speclayer = LinearSpectrogram(512,242,48000)
+            
         elif input_repr == "mel128":
             self.speclayer = Spectrogram.MelSpectrogram(
                 sr=48000, n_fft=2048, n_mels=128, hop_length=242, power=1.0, htk=True

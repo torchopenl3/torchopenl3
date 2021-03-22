@@ -1,6 +1,7 @@
 import itertools
 import os.path
 import tempfile
+import torch.tensor as T
 
 import numpy as np
 import openl3
@@ -32,7 +33,7 @@ AUDIO_MODEL_PARAMS = {
     So we decide not to include linear model for now.
     '''
     
-    "input_repr": ["mel128", "mel256"],
+    "input_repr": ["linear","mel128", "mel256"],
     "embedding_size": [512, 6144],
     "verbose": [0, 1],
     "center": [True, False],
@@ -63,8 +64,9 @@ class TestRegression:
         # gives consistent results, we can remove
         # it later.
         for i in range(n):
-            assert torch.mean(torch.abs(embeddings1[i] - embeddings0[i])) <= 1e-6
-            assert torch.mean(torch.abs(ts1[i] - ts0[i])) <= 1e-6
+            assert torch.mean(
+                torch.abs(T(embeddings1[i]) - T(embeddings0[i]))) <= 1e-6
+            assert torch.mean(torch.abs(T(ts1[i]) - T(ts0[i]))) <= 1e-6
         embeddings2, ts2 = torchopenl3.get_audio_embedding(
             audios, srs, batch_size=32, **modelparams
         )
@@ -73,8 +75,9 @@ class TestRegression:
             We increase the compare paremeter as kapre in openl3 and nnAudio in torchopenl3 giving 
             more mean error. We can expect a prrety good result when we will pretrain model
             '''
-            assert torch.mean(torch.abs(embeddings1[i] - embeddings2[i])) <= 2
-            assert torch.mean(torch.abs(ts1[i] - ts2[i])) <= 2
+            assert torch.mean(
+                torch.abs(T(embeddings1[i]) - T(embeddings2[i]))) <= 2
+            assert torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))) <= 2
 
     def test_regression(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
