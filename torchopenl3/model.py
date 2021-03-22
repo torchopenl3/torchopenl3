@@ -1,7 +1,10 @@
 # import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from nnAudio import Spectrogram
+
+# from nnAudio import Spectrogram
+
+from torchopenl3.custom_spectrogram import CustomSpectrogram
 
 
 class PytorchOpenl3(nn.Module):
@@ -12,17 +15,7 @@ class PytorchOpenl3(nn.Module):
             "mel128": {512: (16, 24), 6144: (4, 8)},
             "mel256": {512: (32, 24), 6144: (8, 8)},
         }
-        if input_repr == "linear":
-            raise ValueError("Need to fix spectrogram padding")
-        elif input_repr == "mel128":
-            self.speclayer = Spectrogram.MelSpectrogram(
-                sr=48000, n_fft=2048, n_mels=128, hop_length=242, power=1.0, htk=True
-            )
-        elif input_repr == "mel256":
-            self.speclayer = Spectrogram.MelSpectrogram(
-                sr=48000, n_fft=2048, n_mels=256, hop_length=242, power=1.0, htk=True
-            )
-
+        self.speclayer = CustomSpectrogram(input_repr, n_fft=512, n_hop=242, asr=48000)
         self.input_repr = input_repr
         self.embedding_size = embedding_size
         self.batch_normalization_1 = self.__batch_normalization(
