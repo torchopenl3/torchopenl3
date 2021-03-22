@@ -41,8 +41,8 @@ class CustomSpectrogram(nn.Module):
             hop_length=n_hop,
             window="hann",
             freq_scale="no",
-            center=(type != "linear"),
-            pad_mode=(None if type == "linear" else "constant"),
+            center=False,  # or True?
+            pad_mode=None,  # or "constant"? etc.
             iSTFT=False,
             fmin=0,
             fmax=asr // 2,
