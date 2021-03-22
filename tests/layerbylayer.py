@@ -117,6 +117,7 @@ class LayerByLayer:
             batch.append(x)
 
         batch = np.vstack(batch)
+        print("Batch shape:", batch.shape)
 
         # Openl3 Model
         model = openl3.models.load_audio_embedding_model(**modelparams)
