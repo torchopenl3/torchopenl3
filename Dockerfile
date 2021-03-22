@@ -27,6 +27,7 @@ RUN cd torchopenl3 && pip3.6 install -e ".[dev]"
 RUN pip3 uninstall torchopenl3
 RUN rm -Rf torchopenl3
 
+RUN apt-get install -y screen
 RUN apt-get autoremove -y
 RUN rm -Rf /root/.cache
 
