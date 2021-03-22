@@ -110,7 +110,14 @@ class PytorchOpenl3(nn.Module):
             "mel128": {512: (16, 24), 6144: (4, 8)},
             "mel256": {512: (32, 24), 6144: (8, 8)},
         }
-        self.speclayer = CustomSpectrogram(input_repr, n_fft=512, n_hop=242, asr=48000)
+        self.n_dft = {
+            "linear": 512,
+            "mel128": 2048,
+            "mel256": 2048,
+        }
+        self.speclayer = CustomSpectrogram(
+            input_repr, n_fft=self.n_dft[input_repr], n_hop=242, asr=48000
+        )
 
         # Old approach, commenting it out if we need it
         """

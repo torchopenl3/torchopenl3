@@ -116,7 +116,8 @@ class LayerByLayer:
             x = preprocess_audio_batch(audio, sr)
             batch.append(x)
 
-        batch = np.vstack(batch)
+        # Downsample for faster testing
+        batch = np.vstack([b for i, b in enumerate(batch) if i % 7 == 0])
         print("Batch shape:", batch.shape)
 
         # Openl3 Model
@@ -163,7 +164,7 @@ class LayerByLayer:
         openl3_output = openl3_model.predict(batch)
 
         # TorchOpenl3 Model All layers output
-        torchopenl3_output = torchopenl3_model(torch.tensor(batch))
+        torchopenl3_output = torchopenl3_model(torch.tensor(batch).float())
 
         for i in range(25):
             err = np.mean(
