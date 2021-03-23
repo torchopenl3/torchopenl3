@@ -262,6 +262,7 @@ class PytorchOpenl3(nn.Module):
         max_pooling2d_1 = F.max_pool2d(
             activation_2, kernel_size=(2, 2), stride=(2, 2), padding=0, ceil_mode=False
         )
+        # all_outputs.append(max_pooling2d_1)
         conv2d_3_pad = F.pad(max_pooling2d_1, (1, 1, 1, 1))
         conv2d_3 = self.conv2d_3(conv2d_3_pad)
         all_outputs.append(conv2d_3)
@@ -279,6 +280,7 @@ class PytorchOpenl3(nn.Module):
         max_pooling2d_2 = F.max_pool2d(
             activation_4, kernel_size=(2, 2), stride=(2, 2), padding=0, ceil_mode=False
         )
+        # all_outputs.append(max_pooling2d_2)
         conv2d_5_pad = F.pad(max_pooling2d_2, (1, 1, 1, 1))
         conv2d_5 = self.conv2d_5(conv2d_5_pad)
         all_outputs.append(conv2d_5)
@@ -296,6 +298,7 @@ class PytorchOpenl3(nn.Module):
         max_pooling2d_3 = F.max_pool2d(
             activation_6, kernel_size=(2, 2), stride=(2, 2), padding=0, ceil_mode=False
         )
+        # all_outputs.append(max_pooling2d_3)
         conv2d_7_pad = F.pad(max_pooling2d_3, (1, 1, 1, 1))
         conv2d_7 = self.conv2d_7(conv2d_7_pad)
         all_outputs.append(conv2d_7)
