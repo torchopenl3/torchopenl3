@@ -123,33 +123,8 @@ class LayerByLayer:
         # Openl3 Model
         model = openl3.models.load_audio_embedding_model(**modelparams)
         inp = model.get_input_at(0)
-        oups = [
-            model.layers[1].output,
-            model.layers[2].output,
-            model.layers[3].output,
-            model.layers[4].output,
-            model.layers[5].output,
-            model.layers[6].output,
-            model.layers[7].output,
-            model.layers[8].output,
-            model.layers[10].output,
-            model.layers[11].output,
-            model.layers[12].output,
-            model.layers[13].output,
-            model.layers[14].output,
-            model.layers[15].output,
-            model.layers[17].output,
-            model.layers[18].output,
-            model.layers[19].output,
-            model.layers[20].output,
-            model.layers[21].output,
-            model.layers[22].output,
-            model.layers[24].output,
-            model.layers[25].output,
-            model.layers[26].output,
-            model.layers[27].output,
-            model.layers[28].output,
-        ]
+        oups = [model.layers[l].output for l in range(1, len(model.layers))]
+        # oups = [model.layers[l].output for l in range(29)]
         openl3_model = Model(inputs=[inp], outputs=oups)
 
         # Torchopenl3 Model
@@ -166,7 +141,17 @@ class LayerByLayer:
         # TorchOpenl3 Model All layers output
         torchopenl3_output = torchopenl3_model(torch.tensor(batch).float())
 
-        for i in range(25):
+        print("Open L3 layers:     ", len(model.layers))
+        print("Open L3 output:     ", len(openl3_output))
+        print("Torchopen L3 output:", len(torchopenl3_output))
+        for i in range(len(openl3_output)):
+            if i < len(torchopenl3_output):
+                print(
+                    f"{i} {openl3_output[i].shape} {torchopenl3_output[i].swapaxes(1, 2).swapaxes(2, 3).shape}"
+                )
+            else:
+                print(f"{i} {openl3_output[i].shape}")
+        for i in range(len(torchopenl3_output)):
             err = np.mean(
                 np.abs(
                     openl3_output[i]
