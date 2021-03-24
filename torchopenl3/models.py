@@ -256,6 +256,7 @@ class PytorchOpenl3(nn.Module):
         )
 
     def forward(self, x, keep_all_outputs=False):
+        print(x.shape)
         if keep_all_outputs:
             all_outputs = []
         x = self.speclayer(x)
