@@ -1,3 +1,4 @@
+import glob
 import gzip
 import imp
 import os
@@ -15,13 +16,12 @@ module_dir = "torchopenl3"
 input_reprs = ["linear", "mel128", "mel256"]
 content_type = ["music", "env"]
 weight_files = [
-    "openl3_{}_{}_layer_weights".format(*tup)
+    os.path.join(module_dir, "openl3_{}_{}_layer_weights".format(*tup))
     for tup in product(input_reprs, content_type)
-]
+] + list(glob.glob(os.path.join(module_path, "*/*_no_mel_layer_pytorch_weights_*")))
 
 base_url = "https://raw.githubusercontent.com/turian/openl3_numpy_weights/main/"
 for weight_file in weight_files:
-    weight_path = os.path.join(module_dir, weight_file)
     if not os.path.isfile(weight_path):
         weight_fname = os.path.splitext(weight_file)[0]
         compressed_file = "{}.npz".format(weight_fname)
