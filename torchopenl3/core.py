@@ -42,8 +42,7 @@ def load_audio_embedding_model(
         npweights = load_np_weights(
             os.path.join(
                 wd,
-                input_repr,
-                f"openl3_no_mel_layer_pytorch_weights_{content_type}_512",
+                f"openl3_{input_type}_{content_type}_layer_weights.pkl",
             )
         )
 

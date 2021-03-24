@@ -14,8 +14,12 @@ except ImportError:
 module_dir = "torchopenl3"
 input_reprs = ["linear", "mel128", "mel256"]
 content_type = ["music", "env"]
+# weight_files = [
+#    "openl3_{}_{}_layer_weights".format(*tup)
+#    for tup in product(input_reprs, content_type)
+# ]
 weight_files = [
-    "openl3_{}_{}_layer_weights".format(*tup)
+    "openl3_{}_{}_layer_weights.pkl".format(*tup)
     for tup in product(input_reprs, content_type)
 ]
 
@@ -23,6 +27,13 @@ base_url = "https://raw.githubusercontent.com/turian/openl3_numpy_weights/main/"
 for weight_file in weight_files:
     weight_path = os.path.join(module_dir, weight_file)
     if not os.path.isfile(weight_path):
+        pickle_file = weight_path
+        pickle_path = weight_path
+        if not os.path.isfile(pickle_file):
+            print("Downloading weight file {} ...".format(pickle_file))
+            # print(base_url + os.path.split(pickle_file)[1], pickle_path)
+            urlretrieve(base_url + os.path.split(pickle_file)[1], pickle_path)
+        """
         weight_fname = os.path.splitext(weight_file)[0]
         compressed_file = "{}.npz".format(weight_fname)
         compressed_path = os.path.join(module_dir, compressed_file)
@@ -36,6 +47,7 @@ for weight_file in weight_files:
         print("Decompression complete")
         os.remove(compressed_path)
         print("Removing compressed file")
+        """
 
 version = imp.load_source(
     "torchopenl3.version", os.path.join("torchopenl3", "version.py")
