@@ -115,12 +115,17 @@ class PytorchOpenl3(nn.Module):
             "mel128": 2048,
             "mel256": 2048,
         }
+        # New approach
         self.speclayer = CustomSpectrogram(
             input_repr, n_fft=self.n_dft[input_repr], n_hop=242, asr=48000
         )
 
         # Old approach, commenting it out if we need it
         """
+        if input_repr == "linear":
+            self.speclayer = CustomSpectrogram(
+                input_repr, n_fft=self.n_dft[input_repr], n_hop=242, asr=48000
+            )
         elif input_repr == "mel128":
             self.speclayer = Spectrogram.MelSpectrogram(
                 sr=48000, n_fft=2048, n_mels=128, hop_length=242, power=1.0, htk=True
