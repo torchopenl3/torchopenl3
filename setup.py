@@ -21,7 +21,6 @@ weight_files = [
 ]
 
 base_url = "https://raw.githubusercontent.com/turian/openl3_numpy_weights/main/"
-"""
 for weight_file in weight_files:
     if not os.path.isfile(weight_file):
         weight_fname = os.path.splitext(weight_file)[0]
@@ -37,22 +36,6 @@ for weight_file in weight_files:
         print("Decompression complete")
         os.remove(compressed_path)
         print("Removing compressed file")
-"""
-
-weight_files += [
-    "torchopenl3/linear/openl3_no_mel_layer_pytorch_weights_env_6144",
-    "torchopenl3/linear/openl3_no_mel_layer_pytorch_weights_music_6144",
-    "torchopenl3/linear/openl3_no_mel_layer_pytorch_weights_music_512",
-    "torchopenl3/linear/openl3_no_mel_layer_pytorch_weights_env_512",
-    "torchopenl3/mel256/openl3_no_mel_layer_pytorch_weights_env_6144",
-    "torchopenl3/mel256/openl3_no_mel_layer_pytorch_weights_music_6144",
-    "torchopenl3/mel256/openl3_no_mel_layer_pytorch_weights_music_512",
-    "torchopenl3/mel256/openl3_no_mel_layer_pytorch_weights_env_512",
-    "torchopenl3/mel128/openl3_no_mel_layer_pytorch_weights_env_6144",
-    "torchopenl3/mel128/openl3_no_mel_layer_pytorch_weights_music_6144",
-    "torchopenl3/mel128/openl3_no_mel_layer_pytorch_weights_music_512",
-    "torchopenl3/mel128/openl3_no_mel_layer_pytorch_weights_env_512",
-]
 
 version = imp.load_source(
     "torchopenl3.version", os.path.join("torchopenl3", "version.py")
