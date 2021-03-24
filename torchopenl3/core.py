@@ -111,9 +111,9 @@ def get_audio_embedding(
 
     if isinstance(audio, np.ndarray):
         audio = torch.Tensor(audio, device=device)
-    if audio.is_cuda:
-        model = model.cuda()
     if isinstance(audio, torch.Tensor):
+        if audio.is_cuda:
+            model = model.cuda()
         audio = torch.stack(
             [preprocess_audio_batch(a, sr, center, hop_size) for a in audio]
         )
@@ -132,6 +132,8 @@ def get_audio_embedding(
             ts_list = torch.arange(audio_embedding.size()[0])
         return audio_embedding, ts_list
     elif isinstance(audio, list):
+        if audio[0].is_cuda:
+            model = model.cuda()
         audio_list = audio
         if isinstance(sr, Real):
             sr_list = [sr] * len(audio_list)
