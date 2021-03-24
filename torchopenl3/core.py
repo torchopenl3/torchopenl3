@@ -111,16 +111,15 @@ def get_audio_embedding(
 
     if isinstance(audio, np.ndarray):
         audio = torch.Tensor(audio, device=device)
+    if audio.is_cuda:
+        model = model.cuda()
     if isinstance(audio, torch.Tensor):
-        if audio.is_cuda:
-            model = model.cuda()
         audio = preprocess_audio_batch(audio, sr, center, hop_size)
         total_size = audio.size()[0]
         audio_embedding = []
         with torch.set_grad_enabled(False):
             for i in range((total_size // batch_size) + 1):
                 small_batch = audio[i * batch_size : (i + 1) * batch_size]
-                print("sb", small_batch.shape)
                 if small_batch.shape[0] > 0:
                     audio_embedding.append(model(small_batch))
         audio_embedding = torch.stack(audio_embedding)
@@ -129,8 +128,7 @@ def get_audio_embedding(
         else:
             ts_list = torch.arange(audio_embedding.size()[0])
         return audio_embedding, ts_list
-
-    if isinstance(audio, list):
+    elif isinstance(audio, list):
         audio_list = audio
         if isinstance(sr, Real):
             sr_list = [sr] * len(audio_list)
@@ -153,7 +151,8 @@ def get_audio_embedding(
         with torch.set_grad_enabled(False):
             for i in range((total_size // batch_size) + 1):
                 small_batch = batch[i * batch_size : (i + 1) * batch_size]
-                batch_embedding.append(model(small_batch))
+                if small_batch.shape[0] > 0:
+                    batch_embedding.append(model(small_batch))
         batch_embedding = torch.stack(batch_embedding)
         # batch_embedding = batch_embedding.swapaxes(1, 2).swapaxes(2, 3)
         # batch_embedding = batch_embedding.reshape(total_size, -1)
@@ -168,3 +167,5 @@ def get_audio_embedding(
             start_idx = end_idx
 
         return embedding_list, ts_list
+    else:
+        assert False
