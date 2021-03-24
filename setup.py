@@ -1,4 +1,3 @@
-import glob
 import gzip
 import imp
 import os
@@ -16,13 +15,14 @@ module_dir = "torchopenl3"
 input_reprs = ["linear", "mel128", "mel256"]
 content_type = ["music", "env"]
 weight_files = [
-    os.path.join(module_dir, "openl3_{}_{}_layer_weights".format(*tup))
+    "openl3_{}_{}_layer_weights".format(*tup)
     for tup in product(input_reprs, content_type)
 ]
 
 base_url = "https://raw.githubusercontent.com/turian/openl3_numpy_weights/main/"
 for weight_file in weight_files:
-    if not os.path.isfile(weight_file):
+    weight_path = os.path.join(module_dir, weight_file)
+    if not os.path.isfile(weight_path):
         weight_fname = os.path.splitext(weight_file)[0]
         compressed_file = "{}.npz".format(weight_fname)
         compressed_path = os.path.join(module_dir, compressed_file)
@@ -31,7 +31,7 @@ for weight_file in weight_files:
             urlretrieve(base_url + compressed_file, compressed_path)
         print("Decompressing ...")
         with open(compressed_path, "rb") as source:
-            with open(weight_file, "wb") as target:
+            with open(weight_path, "wb") as target:
                 target.write(source.read())
         print("Decompression complete")
         os.remove(compressed_path)
