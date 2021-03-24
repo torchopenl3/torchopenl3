@@ -42,6 +42,7 @@ for weight_file in weight_files:
 weight_files += list(
     glob.glob(os.path.join(module_dir, "*/*_no_mel_layer_pytorch_weights_*"))
 )
+print(weight_files)
 
 version = imp.load_source(
     "torchopenl3.version", os.path.join("torchopenl3", "version.py")
