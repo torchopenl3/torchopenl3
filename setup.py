@@ -18,7 +18,7 @@ content_type = ["music", "env"]
 weight_files = [
     os.path.join(module_dir, "openl3_{}_{}_layer_weights".format(*tup))
     for tup in product(input_reprs, content_type)
-] + list(glob.glob(os.path.join(module_dir, "*/*_no_mel_layer_pytorch_weights_*")))
+]
 
 base_url = "https://raw.githubusercontent.com/turian/openl3_numpy_weights/main/"
 for weight_file in weight_files:
@@ -36,6 +36,10 @@ for weight_file in weight_files:
         print("Decompression complete")
         os.remove(compressed_path)
         print("Removing compressed file")
+
+weight_files += list(
+    glob.glob(os.path.join(module_dir, "*/*_no_mel_layer_pytorch_weights_*"))
+)
 
 version = imp.load_source(
     "torchopenl3.version", os.path.join("torchopenl3", "version.py")
