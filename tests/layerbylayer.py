@@ -140,22 +140,29 @@ class LayerByLayer:
         openl3_output = openl3_model.predict(batch)
 
         # TorchOpenl3 Model All layers output
-        torchopenl3_output = torchopenl3_model(torch.tensor(batch).float())
+        torchopenl3_output = torchopenl3_model(
+            torch.tensor(batch).float(), keep_all_outputs=True
+        )
 
         print("Open L3 layers:     ", len(model.layers))
         print("Open L3 output:     ", len(openl3_output))
         print("Torchopen L3 output:", len(torchopenl3_output))
         for i in range(len(openl3_output)):
             if i < len(torchopenl3_output):
-                print(
-                    f"{i} {openl3_output[i].shape} {torchopenl3_output[i].swapaxes(1, 2).swapaxes(2, 3).shape}"
-                )
+                if i != len(torchopenl3_output) - 1:
+                    print(
+                        f"{i} {openl3_output[i].shape} {torchopenl3_output[i].swapaxes(1, 2).swapaxes(2, 3).shape}"
+                    )
+                else:
+                    print(f"{i} {openl3_output[i].shape} {torchopenl3_output[i].shape}")
             else:
                 print(f"{i} {openl3_output[i].shape}")
         for i in range(len(torchopenl3_output)):
-            torcho = (
-                torchopenl3_output[i].swapaxes(1, 2).swapaxes(2, 3).detach().numpy()
-            )
+            if i != len(torchopenl3_output) - 1:
+                torcho = torchopenl3_output[i].swapaxes(1, 2).swapaxes(2, 3).clone()
+            else:
+                torcho = torchopenl3_output[i]
+            torcho = torcho.detach().numpy()
             err = np.mean(np.abs(openl3_output[i] - torcho))
             # pearson = scipy.stats.pearsonr(
             #    np.sort(openl3_output[i].flatten()), np.sort(torcho.flatten())

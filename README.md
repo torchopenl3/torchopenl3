@@ -1,6 +1,21 @@
 # torchopenl3
 
-[forthcoming]
+WARNING: Because of weird kapre 0.1.3 STFT implementation, only 'linear' models have low mean-absolute-error:
+
+```
+0.00027512445 27 {'content_type': 'env', 'input_repr': 'linear', 'embedding_size': 512}
+0.00035646933 27 {'content_type': 'music', 'input_repr': 'linear', 'embedding_size': 512}
+0.0004159477 27 {'content_type': 'env', 'input_repr': 'linear', 'embedding_size': 6144}
+0.00050214445 27 {'content_type': 'music', 'input_repr': 'linear', 'embedding_size': 6144}
+0.019344347 27 {'content_type': 'env', 'input_repr': 'mel128', 'embedding_size': 6144}
+0.021740034 27 {'content_type': 'env', 'input_repr': 'mel128', 'embedding_size': 512}
+0.025367895 27 {'content_type': 'music', 'input_repr': 'mel128', 'embedding_size': 6144}
+0.03770243 27 {'content_type': 'music', 'input_repr': 'mel128', 'embedding_size': 512}
+0.039656915 27 {'content_type': 'env', 'input_repr': 'mel256', 'embedding_size': 6144}
+0.05372108 27 {'content_type': 'music', 'input_repr': 'mel256', 'embedding_size': 6144}
+0.07465961 27 {'content_type': 'env', 'input_repr': 'mel256', 'embedding_size': 512}
+0.11598873 27 {'content_type': 'music', 'input_repr': 'mel256', 'embedding_size': 512}
+```
 
 ## Development$
 

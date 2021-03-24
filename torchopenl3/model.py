@@ -243,77 +243,105 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
 
-    def forward(self, x):
-        all_outputs = []
+    def forward(self, x, keep_all_outputs=False):
+        if keep_all_outputs:
+            all_outputs = []
         x = self.speclayer(x)
         x = x.unsqueeze(1)
-        all_outputs.append(x)
+        if keep_all_outputs:
+            all_outputs.append(x)
         batch_normalization_1 = self.batch_normalization_1(x)
-        all_outputs.append(batch_normalization_1)
+        if keep_all_outputs:
+            all_outputs.append(batch_normalization_1)
         conv2d_1_pad = F.pad(batch_normalization_1, (1, 1, 1, 1))
         conv2d_1 = self.conv2d_1(conv2d_1_pad)
-        all_outputs.append(conv2d_1)
+        if keep_all_outputs:
+            all_outputs.append(conv2d_1)
         batch_normalization_2 = self.batch_normalization_2(conv2d_1)
-        all_outputs.append(batch_normalization_2)
+        if keep_all_outputs:
+            all_outputs.append(batch_normalization_2)
         activation_1 = F.relu(batch_normalization_2)
-        all_outputs.append(activation_1)
+        if keep_all_outputs:
+            all_outputs.append(activation_1)
         conv2d_2_pad = F.pad(activation_1, (1, 1, 1, 1))
         conv2d_2 = self.conv2d_2(conv2d_2_pad)
-        all_outputs.append(conv2d_2)
+        if keep_all_outputs:
+            all_outputs.append(conv2d_2)
         batch_normalization_3 = self.batch_normalization_3(conv2d_2)
-        all_outputs.append(batch_normalization_3)
+        if keep_all_outputs:
+            all_outputs.append(batch_normalization_3)
         activation_2 = F.relu(batch_normalization_3)
-        all_outputs.append(activation_2)
+        if keep_all_outputs:
+            all_outputs.append(activation_2)
         max_pooling2d_1 = F.max_pool2d(
             activation_2, kernel_size=(2, 2), stride=(2, 2), padding=0, ceil_mode=False
         )
-        all_outputs.append(max_pooling2d_1)
+        if keep_all_outputs:
+            all_outputs.append(max_pooling2d_1)
         conv2d_3_pad = F.pad(max_pooling2d_1, (1, 1, 1, 1))
         conv2d_3 = self.conv2d_3(conv2d_3_pad)
-        all_outputs.append(conv2d_3)
+        if keep_all_outputs:
+            all_outputs.append(conv2d_3)
         batch_normalization_4 = self.batch_normalization_4(conv2d_3)
-        all_outputs.append(batch_normalization_4)
+        if keep_all_outputs:
+            all_outputs.append(batch_normalization_4)
         activation_3 = F.relu(batch_normalization_4)
-        all_outputs.append(activation_3)
+        if keep_all_outputs:
+            all_outputs.append(activation_3)
         conv2d_4_pad = F.pad(activation_3, (1, 1, 1, 1))
         conv2d_4 = self.conv2d_4(conv2d_4_pad)
-        all_outputs.append(conv2d_4)
+        if keep_all_outputs:
+            all_outputs.append(conv2d_4)
         batch_normalization_5 = self.batch_normalization_5(conv2d_4)
-        all_outputs.append(batch_normalization_5)
+        if keep_all_outputs:
+            all_outputs.append(batch_normalization_5)
         activation_4 = F.relu(batch_normalization_5)
-        all_outputs.append(activation_4)
+        if keep_all_outputs:
+            all_outputs.append(activation_4)
         max_pooling2d_2 = F.max_pool2d(
             activation_4, kernel_size=(2, 2), stride=(2, 2), padding=0, ceil_mode=False
         )
-        all_outputs.append(max_pooling2d_2)
+        if keep_all_outputs:
+            all_outputs.append(max_pooling2d_2)
         conv2d_5_pad = F.pad(max_pooling2d_2, (1, 1, 1, 1))
         conv2d_5 = self.conv2d_5(conv2d_5_pad)
-        all_outputs.append(conv2d_5)
+        if keep_all_outputs:
+            all_outputs.append(conv2d_5)
         batch_normalization_6 = self.batch_normalization_6(conv2d_5)
-        all_outputs.append(batch_normalization_6)
+        if keep_all_outputs:
+            all_outputs.append(batch_normalization_6)
         activation_5 = F.relu(batch_normalization_6)
-        all_outputs.append(activation_5)
+        if keep_all_outputs:
+            all_outputs.append(activation_5)
         conv2d_6_pad = F.pad(activation_5, (1, 1, 1, 1))
         conv2d_6 = self.conv2d_6(conv2d_6_pad)
-        all_outputs.append(conv2d_6)
+        if keep_all_outputs:
+            all_outputs.append(conv2d_6)
         batch_normalization_7 = self.batch_normalization_7(conv2d_6)
-        all_outputs.append(batch_normalization_7)
+        if keep_all_outputs:
+            all_outputs.append(batch_normalization_7)
         activation_6 = F.relu(batch_normalization_7)
-        all_outputs.append(activation_6)
+        if keep_all_outputs:
+            all_outputs.append(activation_6)
         max_pooling2d_3 = F.max_pool2d(
             activation_6, kernel_size=(2, 2), stride=(2, 2), padding=0, ceil_mode=False
         )
-        all_outputs.append(max_pooling2d_3)
+        if keep_all_outputs:
+            all_outputs.append(max_pooling2d_3)
         conv2d_7_pad = F.pad(max_pooling2d_3, (1, 1, 1, 1))
         conv2d_7 = self.conv2d_7(conv2d_7_pad)
-        all_outputs.append(conv2d_7)
+        if keep_all_outputs:
+            all_outputs.append(conv2d_7)
         batch_normalization_8 = self.batch_normalization_8(conv2d_7)
-        all_outputs.append(batch_normalization_8)
+        if keep_all_outputs:
+            all_outputs.append(batch_normalization_8)
         activation_7 = F.relu(batch_normalization_8)
-        all_outputs.append(activation_7)
+        if keep_all_outputs:
+            all_outputs.append(activation_7)
         audio_embedding_layer_pad = F.pad(activation_7, (1, 1, 1, 1))
         audio_embedding_layer = self.audio_embedding_layer(audio_embedding_layer_pad)
-        all_outputs.append(audio_embedding_layer)
+        if keep_all_outputs:
+            all_outputs.append(audio_embedding_layer)
         max_pooling2d_4 = F.max_pool2d(
             audio_embedding_layer,
             kernel_size=self.AUDIO_POOLING_SIZES[self.input_repr][self.embedding_size],
@@ -321,7 +349,16 @@ class PytorchOpenl3(nn.Module):
             padding=0,
             ceil_mode=False,
         )
-        all_outputs.append(max_pooling2d_4)
+        if keep_all_outputs:
+            all_outputs.append(max_pooling2d_4)
+        # Might just use view ?
+        squeeze = (
+            max_pooling2d_4.swapaxes(1, 2)
+            .swapaxes(2, 3)
+            .reshape((max_pooling2d_4.shape[0], -1))
+        )
+        if keep_all_outputs:
+            all_outputs.append(squeeze)
         return all_outputs
 
     def __batch_normalization(self, dim, name, **kwargs):
