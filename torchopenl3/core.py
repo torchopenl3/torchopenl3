@@ -143,7 +143,7 @@ def get_audio_embedding(
             batch.append(x)
             file_batch_size_list.append(x.size()[0])
 
-        batch = torch.vstack(batch, device="cuda")
+        batch = torch.vstack(batch)
         batch_embedding = batch
         #        total_size = batch.size()[0]
         #        batch_embedding = []
