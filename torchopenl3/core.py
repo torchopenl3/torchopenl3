@@ -4,6 +4,7 @@ from numbers import Real
 
 import numpy as np
 import torch
+import torch.tensor as T
 
 from .models import PytorchOpenl3
 from .utils import preprocess_audio_batch
@@ -137,7 +138,7 @@ def get_audio_embedding(
         file_batch_size_list = []
         for audio, sr in zip(audio_list, sr_list):
             x = preprocess_audio_batch(
-                torch.Tensor(audio, device="cuda"), sr, hop_size=hop_size, center=center
+                T(audio, device="cuda"), sr, hop_size=hop_size, center=center
             )
             batch.append(x)
             file_batch_size_list.append(x.size()[0])
