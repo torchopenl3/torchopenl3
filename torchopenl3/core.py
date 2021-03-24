@@ -120,7 +120,7 @@ def get_audio_embedding(
         with torch.set_grad_enabled(False):
             for i in range((total_size // batch_size) + 1):
                 small_batch = audio[i * batch_size : (i + 1) * batch_size]
-                print(small_batch.shape)
+                print("sb", small_batch.shape)
                 if small_batch.shape[0] > 0:
                     audio_embedding.append(model(small_batch))
         audio_embedding = torch.stack(audio_embedding)
