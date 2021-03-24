@@ -1,11 +1,12 @@
-import numpy as np
-from .model import PytorchOpenl3
-from .utils import preprocess_audio_batch
-from numbers import Real
-import torch
-
 # import requests
 import os
+from numbers import Real
+
+import numpy as np
+import torch
+
+from .models import PytorchOpenl3
+from .utils import preprocess_audio_batch
 
 
 def get_model_path(input_repr, content_type, embedding_size):
@@ -24,7 +25,7 @@ def load_np_weights(weight_file):
     return weights_dict
 
 
-def load_model(
+def load_audio_embedding_model(
     input_repr,
     content_type,
     embedding_size,
@@ -100,7 +101,7 @@ def get_audio_embedding(
     weight_path="",
 ):
     if model is None:
-        model = load_model(input_repr, content_type, embedding_size)
+        model = load_audio_embedding_model(input_repr, content_type, embedding_size)
 
     if isinstance(audio, np.ndarray):
         audio = torch.Tensor(audio)

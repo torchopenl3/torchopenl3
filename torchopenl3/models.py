@@ -1,9 +1,11 @@
+import librosa
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import tensor as T
 from nnAudio import Spectrogram
-import librosa
+from torch import tensor as T
+
+import torchopenl3.core
 
 
 class CustomSpectrogram(nn.Module):
@@ -383,3 +385,7 @@ class PytorchOpenl3(nn.Module):
             raise NotImplementedError()
 
         return layer
+
+
+def load_audio_embedding_model(**kwargs):
+    return torchopenl3.core.load_audio_embedding_model(**kwargs)
