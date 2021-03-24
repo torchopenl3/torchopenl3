@@ -120,7 +120,8 @@ def get_audio_embedding(
         with torch.set_grad_enabled(False):
             for i in range((total_size // batch_size) + 1):
                 small_batch = audio[i * batch_size : (i + 1) * batch_size]
-                audio_embedding.append(model(small_batch))
+                if small_batch.shape[0] > 0:
+                    audio_embedding.append(model(small_batch))
         audio_embedding = torch.stack(audio_embedding)
         if audio.is_cuda:
             ts_list = torch.arange(audio_embedding.size()[0]).cuda()
