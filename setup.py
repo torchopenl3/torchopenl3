@@ -39,10 +39,20 @@ for weight_file in weight_files:
         print("Removing compressed file")
 """
 
-weight_files += list(
-    glob.glob(os.path.join(module_dir, "*/*_no_mel_layer_pytorch_weights_*"))
-)
-print(weight_files)
+weight_files += [
+    "torchopenl3/linear/openl3_no_mel_layer_pytorch_weights_env_6144",
+    "torchopenl3/linear/openl3_no_mel_layer_pytorch_weights_music_6144",
+    "torchopenl3/linear/openl3_no_mel_layer_pytorch_weights_music_512",
+    "torchopenl3/linear/openl3_no_mel_layer_pytorch_weights_env_512",
+    "torchopenl3/mel256/openl3_no_mel_layer_pytorch_weights_env_6144",
+    "torchopenl3/mel256/openl3_no_mel_layer_pytorch_weights_music_6144",
+    "torchopenl3/mel256/openl3_no_mel_layer_pytorch_weights_music_512",
+    "torchopenl3/mel256/openl3_no_mel_layer_pytorch_weights_env_512",
+    "torchopenl3/mel128/openl3_no_mel_layer_pytorch_weights_env_6144",
+    "torchopenl3/mel128/openl3_no_mel_layer_pytorch_weights_music_6144",
+    "torchopenl3/mel128/openl3_no_mel_layer_pytorch_weights_music_512",
+    "torchopenl3/mel128/openl3_no_mel_layer_pytorch_weights_env_512",
+]
 
 version = imp.load_source(
     "torchopenl3.version", os.path.join("torchopenl3", "version.py")
