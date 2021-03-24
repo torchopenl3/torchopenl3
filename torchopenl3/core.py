@@ -107,7 +107,7 @@ def get_audio_embedding(
         if torch.cuda.is_available():
             audio = audio.cuda()
     if isinstance(audio, torch.Tensor):
-        if audio.is_cuda:
+        if not audio.is_cuda:
             model = model.cuda()
         audio = preprocess_audio_batch(audio, sr, center, hop_size)
         total_size = audio.size()[0]

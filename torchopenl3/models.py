@@ -55,12 +55,12 @@ class CustomSpectrogram(nn.Module):
             self.mel_basis = librosa.filters.mel(
                 sr=asr, n_fft=n_fft, n_mels=128, fmin=0, fmax=asr // 2, htk=True, norm=1
             )
-            self.mel_basis = T(self.mel_basis, dtype=torch.float32)
+            self.mel_basis = T(self.mel_basis, dtype=torch.float32, device="cuda")
         elif self.type == "mel256":
             self.mel_basis = librosa.filters.mel(
                 sr=asr, n_fft=n_fft, n_mels=256, fmin=0, fmax=asr // 2, htk=True, norm=1
             )
-            self.mel_basis = T(self.mel_basis, dtype=torch.float32)
+            self.mel_basis = T(self.mel_basis, dtype=torch.float32, device="cuda")
 
     def forward(self, x):
         """
@@ -89,9 +89,9 @@ class CustomSpectrogram(nn.Module):
         """
 
         log_spec = (
-            T(10.0, dtype=torch.float32)
-            * torch.log(torch.maximum(x, T(amin)))
-            / torch.log(T(10.0, dtype=torch.float32))
+            T(10.0, dtype=torch.float32, device="cuda")
+            * torch.log(torch.maximum(x, T(amin, device="cuda")))
+            / torch.log(T(10.0, dtype=torch.float32, device="cuda"))
         )
         if x.ndim > 1:
             axis = tuple(range(x.ndim)[1:])
@@ -99,7 +99,7 @@ class CustomSpectrogram(nn.Module):
             axis = None
 
         log_spec = log_spec - torch.amax(log_spec, dim=axis, keepdims=True)
-        log_spec = torch.maximum(log_spec, T(-1 * dynamic_range))
+        log_spec = torch.maximum(log_spec, T(-1 * dynamic_range, device="cuda"))
         return log_spec
 
 
@@ -361,7 +361,9 @@ class PytorchOpenl3(nn.Module):
         )
         if keep_all_outputs:
             all_outputs.append(squeeze)
-        return all_outputs
+            return all_outputs
+        else:
+            return squeeze
 
     def __batch_normalization(self, dim, name, **kwargs):
         if dim == 0 or dim == 1:
