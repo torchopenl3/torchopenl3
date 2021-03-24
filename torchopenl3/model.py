@@ -256,7 +256,7 @@ class PytorchOpenl3(nn.Module):
         conv2d_2 = self.conv2d_2(conv2d_2_pad)
         all_outputs.append(conv2d_2)
         batch_normalization_3 = self.batch_normalization_3(conv2d_2)
-        all_outputs.append(batch_normalization_2)
+        all_outputs.append(batch_normalization_3)
         activation_2 = F.relu(batch_normalization_3)
         all_outputs.append(activation_2)
         max_pooling2d_1 = F.max_pool2d(

@@ -8,6 +8,7 @@ import openl3
 import pytest
 import requests
 import resampy
+import scipy.stats
 import soundfile as sf
 import torch
 import torch.tensor as T
@@ -152,16 +153,13 @@ class LayerByLayer:
             else:
                 print(f"{i} {openl3_output[i].shape}")
         for i in range(len(torchopenl3_output)):
-            err = np.mean(
-                np.abs(
-                    openl3_output[i]
-                    - torchopenl3_output[i]
-                    .swapaxes(1, 2)
-                    .swapaxes(2, 3)
-                    .detach()
-                    .numpy()
-                )
+            torcho = (
+                torchopenl3_output[i].swapaxes(1, 2).swapaxes(2, 3).detach().numpy()
             )
+            err = np.mean(np.abs(openl3_output[i] - torcho))
+            # pearson = scipy.stats.pearsonr(
+            #    np.sort(openl3_output[i].flatten()), np.sort(torcho.flatten())
+            # )[0]
             print(err, i, modelparams)
 
     def test_regression(self):
