@@ -117,6 +117,7 @@ def get_audio_embedding(
         audio = torch.stack(
             [preprocess_audio_batch(a, sr, center, hop_size) for a in audio]
         )
+        print("audio", audio.shape)
         total_size = audio.size()[0]
         audio_embedding = []
         with torch.set_grad_enabled(False):
