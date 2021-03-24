@@ -80,6 +80,7 @@ def load_model(
         update_conv(model.conv2d_5, "conv2d_5")
         update_conv(model.conv2d_6, "conv2d_6")
         update_conv(model.conv2d_7, "conv2d_7")
+        update_conv(model.audio_embedding_layer, "audio_embedding_layer")
 
     model = model.eval()
     return model
