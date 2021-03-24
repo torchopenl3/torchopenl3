@@ -51,16 +51,21 @@ class CustomSpectrogram(nn.Module):
             output_format="Magnitude",
             verbose=False,
         )
+        if torch.cuda.is_available():
+            # Won't work with multigpu
+            device = "cuda"
+        else:
+            device = "cpu"
         if self.type == "mel128":
             self.mel_basis = librosa.filters.mel(
                 sr=asr, n_fft=n_fft, n_mels=128, fmin=0, fmax=asr // 2, htk=True, norm=1
             )
-            self.mel_basis = T(self.mel_basis, dtype=torch.float32, device="cuda")
+            self.mel_basis = T(self.mel_basis, dtype=torch.float32, device=device)
         elif self.type == "mel256":
             self.mel_basis = librosa.filters.mel(
                 sr=asr, n_fft=n_fft, n_mels=256, fmin=0, fmax=asr // 2, htk=True, norm=1
             )
-            self.mel_basis = T(self.mel_basis, dtype=torch.float32, device="cuda")
+            self.mel_basis = T(self.mel_basis, dtype=torch.float32, device=device)
 
     def forward(self, x):
         """
@@ -87,11 +92,12 @@ class CustomSpectrogram(nn.Module):
         Convert (linear) amplitude to decibel (log10(x)).
         Implemented similar to kapre-0.1.4
         """
+        device = x.device
 
         log_spec = (
-            T(10.0, dtype=torch.float32, device="cuda")
-            * torch.log(torch.maximum(x, T(amin, device="cuda")))
-            / torch.log(T(10.0, dtype=torch.float32, device="cuda"))
+            T(10.0, dtype=torch.float32, device=device)
+            * torch.log(torch.maximum(x, T(amin, device=device)))
+            / torch.log(T(10.0, dtype=torch.float32, device=device))
         )
         if x.ndim > 1:
             axis = tuple(range(x.ndim)[1:])
@@ -99,7 +105,7 @@ class CustomSpectrogram(nn.Module):
             axis = None
 
         log_spec = log_spec - torch.amax(log_spec, dim=axis, keepdims=True)
-        log_spec = torch.maximum(log_spec, T(-1 * dynamic_range, device="cuda"))
+        log_spec = torch.maximum(log_spec, T(-1 * dynamic_range, device=device))
         return log_spec
 
 

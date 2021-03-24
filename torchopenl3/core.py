@@ -103,10 +103,14 @@ def get_audio_embedding(
     if model is None:
         model = load_audio_embedding_model(input_repr, content_type, embedding_size)
 
+    if torch.cuda.is_available():
+        # Won't work with multigpu
+        device = "cuda"
+    else:
+        device = "cpu"
+
     if isinstance(audio, np.ndarray):
-        audio = torch.Tensor(audio)
-        if torch.cuda.is_available():
-            audio = audio.cuda()
+        audio = torch.Tensor(audio, device=device)
     if isinstance(audio, torch.Tensor):
         if audio.is_cuda:
             model = model.cuda()
@@ -117,7 +121,7 @@ def get_audio_embedding(
             for i in range((total_size // batch_size) + 1):
                 small_batch = audio[i * batch_size : (i + 1) * batch_size]
                 audio_embedding.append(model(small_batch))
-        audio_embedding = torch.vstack(audio_embedding)
+        audio_embedding = torch.stack(audio_embedding)
         if audio.is_cuda:
             ts_list = torch.arange(audio_embedding.size()[0]).cuda()
         else:
