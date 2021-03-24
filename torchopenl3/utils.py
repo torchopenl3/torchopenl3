@@ -40,8 +40,11 @@ def get_num_windows(audio_len, frame_len, hop_len, center):
 
 
 def preprocess_audio_batch(audio, sr, center=True, hop_size=0.1):
-    if audio.dim() == 2:
+    if audio.ndim == 2:
         audio = torch.mean(audio, axis=1)
+    else:
+        assert audio.ndim == 1
+        audio = audio.view(audio.shape[0], 1)
 
     if sr != TARGET_SR:
         audio = julius.resample_frac(audio, sr, TARGET_SR)
