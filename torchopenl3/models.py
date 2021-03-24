@@ -94,15 +94,19 @@ class CustomSpectrogram(nn.Module):
         """
         device = x.device
 
+        print("device", device)
+        print("x", x)
         log_spec = (
             T(10.0, dtype=torch.float32, device=device)
             * torch.log(torch.maximum(x, T(amin, device=device)))
             / torch.log(T(10.0, dtype=torch.float32, device=device))
         )
+        print("log_spec", log_spec)
         if x.ndim > 1:
             axis = tuple(range(x.ndim)[1:])
         else:
             axis = None
+        print("axis", axis)
 
         log_spec = log_spec - torch.amax(log_spec, dim=axis, keepdims=True)
         log_spec = torch.maximum(log_spec, T(-1 * dynamic_range, device=device))
