@@ -21,6 +21,7 @@ weight_files = [
 ]
 
 base_url = "https://raw.githubusercontent.com/turian/openl3_numpy_weights/main/"
+"""
 for weight_file in weight_files:
     if not os.path.isfile(weight_file):
         weight_fname = os.path.splitext(weight_file)[0]
@@ -36,6 +37,7 @@ for weight_file in weight_files:
         print("Decompression complete")
         os.remove(compressed_path)
         print("Removing compressed file")
+"""
 
 weight_files += list(
     glob.glob(os.path.join(module_dir, "*/*_no_mel_layer_pytorch_weights_*"))
