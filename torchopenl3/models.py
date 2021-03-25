@@ -34,20 +34,20 @@ class CustomSpectrogram(nn.Module):
     """
 
     def __init__(self, type, n_fft, n_hop, asr, pad):
-        assert(isinstance(type, str))
-        assert(isinstance(n_fft, int))
-        assert(isinstance(n_hop, int))
-        assert(isinstance(asr, int))
-        assert(isinstance(pad, bool))
-        
+        assert isinstance(type, str)
+        assert isinstance(n_fft, int)
+        assert isinstance(n_hop, int)
+        assert isinstance(asr, int)
+        assert isinstance(pad, bool)
+
         super().__init__()
         self.type = type
-    
+
         self.n_fft = n_fft
         self.n_hop = n_hop
         self.asr = asr
         self.pad = pad
-        
+
         self.stft = Spectrogram.STFT(
             n_fft=n_fft,
             win_length=None,
@@ -90,7 +90,7 @@ class CustomSpectrogram(nn.Module):
         """
         if self.pad == True:
             x = self.custom_pad(x)
-            
+
         x_stft = self.stft(x)
         if self.type == "linear":
             x_stft = x_stft
@@ -126,7 +126,7 @@ class CustomSpectrogram(nn.Module):
         log_spec = log_spec - torch.amax(log_spec, dim=axis, keepdims=True)
         log_spec = torch.maximum(log_spec, T(-1 * dynamic_range, device=device))
         return log_spec
-    
+
     def custom_pad(self, x):
         """
         Pad sequence.
@@ -137,7 +137,7 @@ class CustomSpectrogram(nn.Module):
         strides = self.n_hop
         in_width = self.asr
 
-        if (in_width % strides == 0):
+        if in_width % strides == 0:
             pad_along_width = max(filter_width - strides, 0)
         else:
             pad_along_width = max(filter_width - (in_width % strides), 0)
@@ -168,10 +168,14 @@ class PytorchOpenl3(nn.Module):
             "mel128": True,
             "mel256": True,
         }
-        
+
         # New approach
         self.speclayer = CustomSpectrogram(
-            input_repr, n_fft=self.n_dft[input_repr], n_hop=242, asr=48000, pad = self.pad[input_repr]
+            input_repr,
+            n_fft=self.n_dft[input_repr],
+            n_hop=242,
+            asr=48000,
+            pad=self.pad[input_repr],
         )
 
         # Old approach, commenting it out if we need it
