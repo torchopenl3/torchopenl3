@@ -115,7 +115,7 @@ def get_audio_embedding(
         if audio.is_cuda:
             model = model.cuda()
         # Ugh this is dumb and slow
-        audio = torch.stack(
+        audio = torch.vstack(
             [
                 preprocess_audio_batch(audio[i], sr, center, hop_size)
                 for i in range(audio.shape[0])
