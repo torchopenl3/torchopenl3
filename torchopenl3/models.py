@@ -21,19 +21,33 @@ class CustomSpectrogram(nn.Module):
       The window size for the STFT
     n_hop: int
       The hop (or stride) size
+    pad: bool
+      Pad the output to have same shape
     Returns
     -------
     spectrogram : torch.tensor
         It returns a tensor of spectrograms.
     Examples
     --------
-    >>> speclayer = CustomSpectrogram("mel256", n_fft = 512, n_hop = 242, asr = 48000)
+    >>> speclayer = CustomSpectrogram("mel256", n_fft = 512, n_hop = 242, asr = 48000, pad=True)
     >>> specs = speclayer(x)
     """
 
-    def __init__(self, type, n_fft, n_hop, asr):
+    def __init__(self, type, n_fft, n_hop, asr, pad):
+        assert(isinstance(type, str))
+        assert(isinstance(n_fft, int))
+        assert(isinstance(n_hop, int))
+        assert(isinstance(asr, int))
+        assert(isinstance(pad, bool))
+        
         super().__init__()
         self.type = type
+    
+        self.n_fft = n_fft
+        self.n_hop = n_hop
+        self.asr = asr
+        self.pad = pad
+        
         self.stft = Spectrogram.STFT(
             n_fft=n_fft,
             win_length=None,
@@ -75,7 +89,9 @@ class CustomSpectrogram(nn.Module):
         ----------
         x : torch tensor
         """
-
+        if self.pad == True:
+            x = self.custom_pad(x)
+            
         x_stft = self.stft(x)
         if self.type == "linear":
             x_stft = x_stft
@@ -111,6 +127,27 @@ class CustomSpectrogram(nn.Module):
         log_spec = log_spec - torch.amax(log_spec, dim=axis, keepdims=True)
         log_spec = torch.maximum(log_spec, T(-1 * dynamic_range, device=device))
         return log_spec
+    
+    def custom_pad(self, x):
+        """
+        Pad sequence.
+        Implemented similar to keras version used in kapre=0.1.4
+        """
+
+        filter_width = self.n_fft
+        strides = self.n_hop
+        in_width = self.asr
+
+        if (in_width % strides == 0):
+            pad_along_width = max(filter_width - strides, 0)
+        else:
+            pad_along_width = max(filter_width - (in_width % strides), 0)
+
+        pad_left = pad_along_width // 2
+        pad_right = pad_along_width - pad_left
+
+        x = torch.nn.ZeroPad2d((pad_left, pad_right, 0, 0))(T(x))
+        return x
 
 
 class PytorchOpenl3(nn.Module):
@@ -127,9 +164,15 @@ class PytorchOpenl3(nn.Module):
             "mel128": 2048,
             "mel256": 2048,
         }
+        self.pad = {
+            "linear": False,
+            "mel128": True,
+            "mel256": True,
+        }
+        
         # New approach
         self.speclayer = CustomSpectrogram(
-            input_repr, n_fft=self.n_dft[input_repr], n_hop=242, asr=48000
+            input_repr, n_fft=self.n_dft[input_repr], n_hop=242, asr=48000, pad = self.pad[input_repr]
         )
 
         # Old approach, commenting it out if we need it
