@@ -1,9 +1,11 @@
+import librosa
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch import tensor as T
 from nnAudio import Spectrogram
-import librosa
+from torch import tensor as T
+
+import torchopenl3.core
 
 
 class CustomSpectrogram(nn.Module):
@@ -49,16 +51,21 @@ class CustomSpectrogram(nn.Module):
             output_format="Magnitude",
             verbose=False,
         )
+        if torch.cuda.is_available():
+            # Won't work with multigpu
+            device = "cuda"
+        else:
+            device = "cpu"
         if self.type == "mel128":
             self.mel_basis = librosa.filters.mel(
                 sr=asr, n_fft=n_fft, n_mels=128, fmin=0, fmax=asr // 2, htk=True, norm=1
             )
-            self.mel_basis = T(self.mel_basis, dtype=torch.float32)
+            self.mel_basis = T(self.mel_basis, dtype=torch.float32, device=device)
         elif self.type == "mel256":
             self.mel_basis = librosa.filters.mel(
                 sr=asr, n_fft=n_fft, n_mels=256, fmin=0, fmax=asr // 2, htk=True, norm=1
             )
-            self.mel_basis = T(self.mel_basis, dtype=torch.float32)
+            self.mel_basis = T(self.mel_basis, dtype=torch.float32, device=device)
 
     def forward(self, x):
         """
@@ -85,19 +92,24 @@ class CustomSpectrogram(nn.Module):
         Convert (linear) amplitude to decibel (log10(x)).
         Implemented similar to kapre-0.1.4
         """
+        device = x.device
 
+        # print("device", device)
+        # print("x", x)
         log_spec = (
-            T(10.0, dtype=torch.float32)
-            * torch.log(torch.maximum(x, T(amin)))
-            / torch.log(T(10.0, dtype=torch.float32))
+            T(10.0, dtype=torch.float32, device=device)
+            * torch.log(torch.maximum(x, T(amin, device=device)))
+            / torch.log(T(10.0, dtype=torch.float32, device=device))
         )
+        # print("log_spec", log_spec)
         if x.ndim > 1:
             axis = tuple(range(x.ndim)[1:])
         else:
             axis = None
+        # print("axis", axis)
 
         log_spec = log_spec - torch.amax(log_spec, dim=axis, keepdims=True)
-        log_spec = torch.maximum(log_spec, T(-1 * dynamic_range))
+        log_spec = torch.maximum(log_spec, T(-1 * dynamic_range, device=device))
         return log_spec
 
 
@@ -359,7 +371,9 @@ class PytorchOpenl3(nn.Module):
         )
         if keep_all_outputs:
             all_outputs.append(squeeze)
-        return all_outputs
+            return all_outputs
+        else:
+            return squeeze
 
     def __batch_normalization(self, dim, name, **kwargs):
         if dim == 0 or dim == 1:
@@ -383,3 +397,7 @@ class PytorchOpenl3(nn.Module):
             raise NotImplementedError()
 
         return layer
+
+
+def load_audio_embedding_model(**kwargs):
+    return torchopenl3.core.load_audio_embedding_model(**kwargs)
