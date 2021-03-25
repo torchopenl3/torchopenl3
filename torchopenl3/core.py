@@ -115,12 +115,14 @@ def get_audio_embedding(
         if audio.is_cuda:
             model = model.cuda()
         # Ugh this is dumb and slow
+        print("audio.shape", audio.shape)
         audio = torch.vstack(
             [
                 preprocess_audio_batch(audio[i], sr, center, hop_size)
                 for i in range(audio.shape[0])
             ]
         )
+        print("audio.shape", audio.shape)
         total_size = audio.size()[0]
         audio_embedding = []
         with torch.set_grad_enabled(False):
