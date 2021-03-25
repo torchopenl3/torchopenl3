@@ -110,7 +110,7 @@ def get_audio_embedding(
         device = "cpu"
 
     if isinstance(audio, np.ndarray):
-        audio = torch.tensor(audio, device=device)
+        audio = T(audio, device=device)
     if isinstance(audio, torch.Tensor):
         if audio.is_cuda:
             model = model.cuda()
