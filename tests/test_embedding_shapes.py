@@ -14,7 +14,7 @@ from tqdm.auto import tqdm
 import torchopenl3
 
 
-class TestShapes:
+class TestEmbeddingShapes:
     """
     Test shapes of output
     """
