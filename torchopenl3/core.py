@@ -114,6 +114,7 @@ def get_audio_embedding(
     if isinstance(audio, torch.Tensor):
         # nsounds x nsamples (x nchannels)
         assert audio.ndim == 2 or audio.ndim == 3
+        nsounds = audio.shape[0]
         if audio.is_cuda:
             model = model.cuda()
         audio = preprocess_audio_batch(audio, sr, center, hop_size)
@@ -127,17 +128,17 @@ def get_audio_embedding(
                     # print("small_batch.shape", small_batch.shape)
                     audio_embedding.append(model(small_batch))
         audio_embedding = torch.vstack(audio_embedding)
+        # This is broken, doesn't use hop-size or center
         if audio.is_cuda:
             ts_list = torch.arange(audio_embedding.size()[0]).cuda()
         else:
             ts_list = torch.arange(audio_embedding.size()[0])
-        nsounds = audio.shape[0]
         assert audio_embedding.shape[0] % nsounds == 0
         assert ts_list.shape[0] % nsounds == 0
         # return nsounds x nframes x ndim
         return (
             audio_embedding.view(nsounds, audio_embedding.shape[0] // nsounds, -1),
-            ts_list.view(nsounds, audio_embedding.shape[0] // nsounds, -1),
+            ts_list.view(nsounds, audio_embedding.shape[0] // nsounds),
         )
     elif isinstance(audio, list):
         if audio[0].is_cuda:
@@ -168,19 +169,19 @@ def get_audio_embedding(
 
         batch = torch.vstack(batch)
         total_size = batch.size()[0]
-        batch_embedding = []
+        audio_embeddings = []
         with torch.set_grad_enabled(False):
             for i in range((total_size // batch_size) + 1):
                 small_batch = batch[i * batch_size : (i + 1) * batch_size]
                 if small_batch.shape[0] > 0:
-                    batch_embedding.append(model(small_batch))
-        batch_embedding = torch.stack(batch_embedding)
-        # batch_embedding = batch_embedding.swapaxes(1, 2).swapaxes(2, 3)
-        # batch_embedding = batch_embedding.reshape(total_size, -1)
+                    audio_embeddings.append(model(small_batch))
+        audio_embeddings = torch.stack(audio_embeddings)
+        audio_embeddings = audio_embeddings.view(total_size, -1)
         start_idx = 0
         for file_batch_size in file_batch_size_list:
             end_idx = start_idx + file_batch_size
-            embedding = batch_embedding[start_idx:end_idx, ...]
+            embedding = audio_embeddings[start_idx:end_idx, ...]
+            # This is broken, doesn't use center
             ts = np.arange(embedding.shape[0]) * hop_size
 
             embedding_list.append(embedding)
