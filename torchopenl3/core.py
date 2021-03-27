@@ -140,8 +140,6 @@ def get_audio_embedding(
             ts_list.view(nsounds, audio_embedding.shape[0] // nsounds, -1),
         )
     elif isinstance(audio, list):
-        # nsamples (x nchannels)
-        assert audio.ndim == 1 or audio.ndim == 2
         if audio[0].is_cuda:
             model = model.cuda()
         audio_list = audio
@@ -156,6 +154,8 @@ def get_audio_embedding(
         batch = []
         file_batch_size_list = []
         for audio, sr in zip(audio_list, sr_list):
+            # nsamples (x nchannels)
+            assert audio.ndim == 1 or audio.ndim == 2
             if audio.ndim == 1:
                 audio = audio.view(1, -1)
             elif audio.ndim == 2:
