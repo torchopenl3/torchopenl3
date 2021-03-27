@@ -29,7 +29,8 @@ class CustomSpectrogram(nn.Module):
         It returns a tensor of spectrograms.
     Examples
     --------
-    >>> speclayer = CustomSpectrogram("mel256", n_fft = 512, n_hop = 242, asr = 48000, pad=True)
+    >>> speclayer = CustomSpectrogram("mel256", n_fft = 512, n_hop = 242, \
+    >>>      asr = 48000, pad=True)
     >>> specs = speclayer(x)
     """
 
@@ -88,7 +89,7 @@ class CustomSpectrogram(nn.Module):
         ----------
         x : torch tensor
         """
-        if self.pad == True:
+        if self.pad:
             x = self.custom_pad(x)
 
         x_stft = self.stft(x)
