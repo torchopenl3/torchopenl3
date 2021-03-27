@@ -25,7 +25,7 @@ AUDIO_URLS = [
 ]
 
 CHECK_AUDIO_MODEL_PARAMS = {
-    "verbose": [0, 1],
+    #    "verbose": [0, 1],
     "center": [True, False],
     "hop_size": [0.1, 0.5],
 }
@@ -73,8 +73,8 @@ class TestRegression:
             print(torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))))
             assert embeddings1[0].shape == embeddings2[0].shape
             assert embeddings1[1].shape == embeddings2[1].shape
-            assert torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i]))) <= 1e-4
-            assert torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))) <= 1e-4
+            assert torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i]))) <= 1e-2
+            assert torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))) <= 1e-6
 
     def _test_regression(self, **kwargs):
         with tempfile.TemporaryDirectory() as tmpdirname:

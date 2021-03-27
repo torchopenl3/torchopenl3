@@ -112,11 +112,11 @@ def get_audio_embedding(
     if isinstance(audio, np.ndarray):
         audio = T(audio, device=device)
     if isinstance(audio, torch.Tensor):
+        # nsounds x nsamples (x nchannels)
+        assert audio.ndim == 2 or audio.ndim == 3
         if audio.is_cuda:
             model = model.cuda()
-        # Ugh this is dumb and slow
-        # print("audio.shape", audio.shape)
-        audio = preprocess_audio_batch(audio,sr,center,hop_size)
+        audio = preprocess_audio_batch(audio, sr, center, hop_size)
         # print("audio.shape", audio.shape)
         total_size = audio.size()[0]
         audio_embedding = []
@@ -131,8 +131,17 @@ def get_audio_embedding(
             ts_list = torch.arange(audio_embedding.size()[0]).cuda()
         else:
             ts_list = torch.arange(audio_embedding.size()[0])
-        return audio_embedding, ts_list
+        nsounds = audio.shape[0]
+        assert audio_embedding.shape[0] % nsounds == 0
+        assert ts_list.shape[0] % nsounds == 0
+        # return nsounds x nframes x ndim
+        return (
+            audio_embedding.view(nsounds, audio_embedding.shape[0] // nsounds, -1),
+            ts_list.view(nsounds, audio_embedding.shape[0] // nsounds, -1),
+        )
     elif isinstance(audio, list):
+        # nsamples (x nchannels)
+        assert audio.ndim == 1 or audio.ndim == 2
         if audio[0].is_cuda:
             model = model.cuda()
         audio_list = audio
@@ -147,6 +156,12 @@ def get_audio_embedding(
         batch = []
         file_batch_size_list = []
         for audio, sr in zip(audio_list, sr_list):
+            if audio.ndim == 1:
+                audio = audio.view(1, -1)
+            elif audio.ndim == 2:
+                audio = audio.view(1, audio.shape[0], audio.shape[1])
+            else:
+                assert False
             x = preprocess_audio_batch(audio, sr, hop_size=hop_size, center=center)
             batch.append(x)
             file_batch_size_list.append(x.size()[0])
