@@ -38,8 +38,7 @@ def get_num_windows(audio_len, frame_len, hop_len, center):
         return 1
     else:
         return (
-            1 + torch.ceil(torch.tensor((audio_len -
-                                         frame_len) / float(hop_len))).int()
+            1 + torch.ceil(torch.tensor((audio_len - frame_len) / float(hop_len))).int()
         )
 
 
@@ -58,11 +57,20 @@ def preprocess_audio_batch(audio, sr, center=True, hop_size=0.1):
     audio = pad_audio(audio, frame_len, hop_len)
     n_frames = 1 + int((audio.size()[1] - frame_len) / float(hop_len))
     x = []
+    xframes_shape = None
     for i in range(audio.shape[0]):
-      x.append(torch.as_strided(
-          audio[i],
-          size=(frame_len, n_frames),
-          stride=(1, hop_len),
-      ).transpose(0, 1).unsqueeze(1))
+        xframes = (
+            torch.as_strided(
+                audio[i],
+                size=(frame_len, n_frames),
+                stride=(1, hop_len),
+            )
+            .transpose(0, 1)
+            .unsqueeze(1)
+        )
+        if xframes_shape is None:
+            xframes_shape = xframes.shape
+        assert xframes.shape == xframes_shape
+        x.append(xframes)
     x = torch.vstack(x)
     return x
