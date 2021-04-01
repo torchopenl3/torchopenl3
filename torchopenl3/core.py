@@ -13,7 +13,8 @@ from .utils import preprocess_audio_batch
 def get_model_path(input_repr, content_type, embedding_size):
     return os.path.join(
         os.path.dirname(__file__),
-        "torchopenl3_{}_{}_{}.pth".format(input_repr, content_type, embedding_size),
+        "torchopenl3_{}_{}_{}.pth".format(
+            input_repr, content_type, embedding_size),
     )
 
 
@@ -51,7 +52,8 @@ def load_audio_embedding_model(
             layer.state_dict()["weight"].copy_(
                 torch.from_numpy(npweights[name]["scale"])
             )
-            layer.state_dict()["bias"].copy_(torch.from_numpy(npweights[name]["bias"]))
+            layer.state_dict()["bias"].copy_(
+                torch.from_numpy(npweights[name]["bias"]))
             layer.state_dict()["running_mean"].copy_(
                 torch.from_numpy(npweights[name]["mean"])
             )
@@ -72,7 +74,8 @@ def load_audio_embedding_model(
             layer.state_dict()["weight"].copy_(
                 torch.from_numpy(npweights[name]["weights"])
             )
-            layer.state_dict()["bias"].copy_(torch.from_numpy(npweights[name]["bias"]))
+            layer.state_dict()["bias"].copy_(
+                torch.from_numpy(npweights[name]["bias"]))
 
         update_conv(model.conv2d_1, "conv2d_1")
         update_conv(model.conv2d_2, "conv2d_2")
@@ -101,7 +104,8 @@ def get_audio_embedding(
     weight_path="",
 ):
     if model is None:
-        model = load_audio_embedding_model(input_repr, content_type, embedding_size)
+        model = load_audio_embedding_model(
+            input_repr, content_type, embedding_size)
 
     if torch.cuda.is_available():
         # Won't work with multigpu
@@ -123,22 +127,25 @@ def get_audio_embedding(
         audio_embedding = []
         with torch.set_grad_enabled(False):
             for i in range((total_size // batch_size) + 1):
-                small_batch = audio[i * batch_size : (i + 1) * batch_size]
+                small_batch = audio[i * batch_size: (i + 1) * batch_size]
                 if small_batch.shape[0] > 0:
                     # print("small_batch.shape", small_batch.shape)
                     audio_embedding.append(model(small_batch))
         audio_embedding = torch.vstack(audio_embedding)
         # This is broken, doesn't use hop-size or center
+        ts_list = torch.arange(audio_embedding.size()[0] // nsounds) * hop_size
+        ts_list = ts_list.expand(nsounds, audio_embedding.size()[0] // nsounds)
+
         if audio.is_cuda:
-            ts_list = torch.arange(audio_embedding.size()[0]).cuda()
-        else:
-            ts_list = torch.arange(audio_embedding.size()[0])
+            ts_list = ts_list.cuda()
+
         assert audio_embedding.shape[0] % nsounds == 0
         assert ts_list.shape[0] % nsounds == 0
         # return nsounds x nframes x ndim
         return (
-            audio_embedding.view(nsounds, audio_embedding.shape[0] // nsounds, -1),
-            ts_list.view(nsounds, audio_embedding.shape[0] // nsounds),
+            audio_embedding.view(
+                nsounds, audio_embedding.shape[0] // nsounds, -1),
+            ts_list,
         )
     elif isinstance(audio, list):
         if audio[0].is_cuda:
@@ -163,7 +170,8 @@ def get_audio_embedding(
                 audio = audio.view(1, audio.shape[0], audio.shape[1])
             else:
                 assert False
-            x = preprocess_audio_batch(audio, sr, hop_size=hop_size, center=center)
+            x = preprocess_audio_batch(
+                audio, sr, hop_size=hop_size, center=center)
             batch.append(x)
             file_batch_size_list.append(x.size()[0])
 
@@ -172,7 +180,7 @@ def get_audio_embedding(
         audio_embeddings = []
         with torch.set_grad_enabled(False):
             for i in range((total_size // batch_size) + 1):
-                small_batch = batch[i * batch_size : (i + 1) * batch_size]
+                small_batch = batch[i * batch_size: (i + 1) * batch_size]
                 if small_batch.shape[0] > 0:
                     audio_embeddings.append(model(small_batch))
         audio_embeddings = torch.stack(audio_embeddings)
