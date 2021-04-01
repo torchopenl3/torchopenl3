@@ -150,7 +150,7 @@ def get_audio_embedding(
     elif isinstance(audio, list):
         if isinstance(audio[0], np.ndarray):
             for i in range(len(audio)):
-                audio[i] = audio = T(audio[i], device=device)
+                audio[i] =  T(audio[i], device=device)
         if audio[0].is_cuda:
             model = model.cuda()
         audio_list = audio
