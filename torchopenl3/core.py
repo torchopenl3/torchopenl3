@@ -175,7 +175,7 @@ def get_audio_embedding(
                 small_batch = batch[i * batch_size : (i + 1) * batch_size]
                 if small_batch.shape[0] > 0:
                     audio_embeddings.append(model(small_batch))
-        audio_embeddings = torch.stack(audio_embeddings)
+        audio_embeddings = torch.vstack(audio_embeddings)
         audio_embeddings = audio_embeddings.view(total_size, -1)
         start_idx = 0
         for file_batch_size in file_batch_size_list:
