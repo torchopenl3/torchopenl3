@@ -92,16 +92,19 @@ class TestRegression:
             for modelparams in tqdm(modelparamlist):
                 self.check_model_for_regression(modelparams, filenames)
 
+    """
     def test_regression_env_linear_512(self):
         self._test_regression(
             content_type="env", input_repr="linear", embedding_size=512
         )
+    """
 
     def test_regression_music_linear_512(self):
         self._test_regression(
             content_type="music", input_repr="linear", embedding_size=512
         )
 
+    """
     def test_regression_env_mel128_512(self):
         self._test_regression(
             content_type="env", input_repr="mel128", embedding_size=512
@@ -111,12 +114,14 @@ class TestRegression:
         self._test_regression(
             content_type="music", input_repr="mel128", embedding_size=512
         )
+    """
 
     def test_regression_env_mel256_512(self):
         self._test_regression(
             content_type="env", input_repr="mel256", embedding_size=512
         )
 
+    """
     def test_regression_music_mel256_512(self):
         self._test_regression(
             content_type="music", input_repr="mel256", embedding_size=512
@@ -151,3 +156,4 @@ class TestRegression:
         self._test_regression(
             content_type="music", input_repr="mel256", embedding_size=6144
         )
+    """
