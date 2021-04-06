@@ -38,7 +38,8 @@ def get_num_windows(audio_len, frame_len, hop_len, center):
         return 1
     else:
         return (
-            1 + torch.ceil(torch.tensor((audio_len - frame_len) / float(hop_len))).int()
+            1 + torch.ceil(torch.tensor((audio_len -
+                                         frame_len) / float(hop_len))).int()
         )
 
 
