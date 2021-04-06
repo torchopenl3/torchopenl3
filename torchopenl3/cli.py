@@ -104,7 +104,7 @@ def run(modality, inputs, output_dir=None, suffix=None,
         raise TorchOpenL3Error('Invalid input: {}'.format(str(inputs)))
 
     if len(file_list) == 0:
-        print('openl3: No files found in {}. Aborting.'.format(str(inputs)))
+        print('torchopenl3: No files found in {}. Aborting.'.format(str(inputs)))
         sys.exit(-1)
 
     # Load model
@@ -136,7 +136,7 @@ def run(modality, inputs, output_dir=None, suffix=None,
         raise TorchOpenL3Error('Invalid modality: {}'.format(modality))
 
     if verbose:
-        print('openl3: Done!')
+        print('torchopenl3: Done!')
 
 
 def parse_args(args):

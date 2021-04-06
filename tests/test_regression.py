@@ -56,7 +56,8 @@ class TestRegression:
         for i in range(n):
             assert embeddings1[0].shape == embeddings0[0].shape
             assert embeddings1[1].shape == embeddings0[1].shape
-            assert torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings0[i]))) <= 1e-6
+            assert torch.mean(
+                torch.abs(T(embeddings1[i]) - T(embeddings0[i]))) <= 1e-6
             assert torch.mean(torch.abs(T(ts1[i]) - T(ts0[i]))) <= 1e-6
         embeddings2, ts2 = torchopenl3.get_audio_embedding(
             audios, srs, batch_size=32, **modelparams
@@ -73,7 +74,8 @@ class TestRegression:
             print(torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))))
             assert embeddings1[0].shape == embeddings2[0].shape
             assert embeddings1[1].shape == embeddings2[1].shape
-            assert torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i]))) <= 1e-2
+            assert torch.mean(
+                torch.abs(T(embeddings1[i]) - T(embeddings2[i]))) <= 1e-2
             assert torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))) <= 1e-6
 
     def _test_regression(self, **kwargs):
