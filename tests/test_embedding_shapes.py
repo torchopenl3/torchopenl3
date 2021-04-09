@@ -49,14 +49,17 @@ class TestEmbeddingShapes:
         sounds[0][0:16000, :] = torch.zeros(16000, 2)
         sounds[1][16000:32000, :] = torch.zeros(16000, 2)
         sounds[2][32000:48000, :] = torch.zeros(16000, 2)
-        emb0, ts0 = torchopenl3.get_audio_embedding(sounds, 48000, batch_size=32)
+        emb0, ts0 = torchopenl3.get_audio_embedding(
+            sounds, 48000, batch_size=32, sampler="resampy"
+        )
+        
         emb0 = torch.stack(emb0)
         ts0 = np.vstack(ts0)
         assert emb0.shape == (3, 6, 6144)
         # assert ts0.shape == (3, 6, 1)
 
         emb1, ts1 = torchopenl3.get_audio_embedding(
-            torch.stack(sounds), 48000, batch_size=32
+            torch.stack(sounds), 48000, batch_size=32, sampler="resampy"
         )
         assert emb1.shape == (3, 6, 6144)
         # assert ts1.shape == (3, 6, 1)
