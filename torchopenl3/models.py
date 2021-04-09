@@ -2,7 +2,6 @@ import librosa
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from nnAudio import Spectrogram
 from torch import tensor as T
 import numpy as np
 from torch.nn.functional import conv1d
@@ -22,7 +21,8 @@ class CustomSTFT(nn.Module):
       power_spectrogram: float
         2.0 to get power spectrogram, 1.0 to get amplitude spectrogram.
       return_decibel_spectrogram: bool
-        Whether to return in decibel or not, i.e. returns log10(amplitude spectrogram) if True
+        Whether to return in decibel or not, i.e. returns 
+        log10(amplitude spectrogram) if True
 
     Returns
     -------
@@ -31,7 +31,8 @@ class CustomSTFT(nn.Module):
 
     Examples
     --------
-    >>> stftlayer = CustomSTFT(n_dft = 512, n_hop = 242, power_spectrogram = 2.0,
+    >>> stftlayer = CustomSTFT(n_dft = 512, n_hop = 242, 
+        power_spectrogram = 2.0,
         return_decibel_spectrogram=False)
     >>> stftlayer = speclayer(x)
     """
@@ -120,7 +121,10 @@ class CustomSTFT(nn.Module):
         dft_real_kernels = dft_real_kernels[:, np.newaxis, np.newaxis, :]
         dft_imag_kernels = dft_imag_kernels[:, np.newaxis, np.newaxis, :]
 
-        return dft_real_kernels.astype(np.float32), dft_imag_kernels.astype(np.float32)
+        return (
+            dft_real_kernels.astype(np.float32), 
+            dft_imag_kernels.astype(np.float32)
+        )
 
     def amplitude_to_decibel(self, x, amin=1e-10, dynamic_range=80.0):
         """
@@ -155,7 +159,8 @@ class CustomMelSTFT(CustomSTFT):
       power_spectrogram: float
         2.0 to get power spectrogram, 1.0 to get amplitude spectrogram.
       return_decibel_spectrogram: bool
-        Whether to return in decibel or not, i.e. returns log10(amplitude spectrogram) if True
+        Whether to return in decibel or not, i.e. returns 
+        log10(amplitude spectrogram) if True
 
     Returns
     -------
