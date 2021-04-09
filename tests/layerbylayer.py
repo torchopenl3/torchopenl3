@@ -141,7 +141,7 @@ class LayerByLayer:
 
         # TorchOpenl3 Model All layers output
         torchopenl3_output = torchopenl3_model(
-            torch.tensor(batch).float(), keep_all_outputs=True
+            torch.tensor(batch, dtype=torch.float32), keep_all_outputs=True
         )
 
         print("Open L3 layers:     ", len(model.layers))
