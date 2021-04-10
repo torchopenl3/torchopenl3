@@ -1,7 +1,6 @@
 from __future__ import print_function
 import os
 import sys
-import sklearn.decomposition
 from .torchopenl3_exceptions import TorchOpenL3Error
 from argparse import ArgumentParser, RawDescriptionHelpFormatter, ArgumentTypeError
 from collections import Iterable
