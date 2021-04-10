@@ -41,11 +41,11 @@ class TestEmbeddingTimestamps:
 
         for params in paramlist:
             emb0, ts0 = torchopenl3.get_audio_embedding(
-                sounds, 48000, batch_size=32, **params
+                sounds, 48000, batch_size=32, sampler="resampy", **params
             )
             ts0 = np.vstack(ts0)
             emb1, ts1 = torchopenl3.get_audio_embedding(
-                torch.stack(sounds), 48000, batch_size=32, **params
+                torch.stack(sounds), 48000, sampler="resampy", batch_size=32, **params
             )
             assert torch.mean(torch.abs(ts1 - ts0)) <= 1e-6
 
@@ -59,10 +59,10 @@ class TestEmbeddingTimestamps:
 
         for params in paramlist:
             emb0, ts0 = torchopenl3.get_audio_embedding(
-                sounds, 48000, batch_size=32, **params
+                sounds, 48000, batch_size=32, sampler="resampy", **params
             )
             ts0 = np.vstack(ts0)
             emb1, ts1 = torchopenl3.get_audio_embedding(
-                torch.stack(sounds), 48000, batch_size=32, **params
+                torch.stack(sounds), 48000, batch_size=32, sampler="resampy", **params
             )
             assert torch.mean(torch.abs(ts1 - ts0)) <= 1e-6

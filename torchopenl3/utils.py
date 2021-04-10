@@ -1,8 +1,6 @@
 import julius
+import resampy
 import torch
-
-TARGET_SR = 48000
-
 
 TARGET_SR = 48000
 
@@ -38,8 +36,7 @@ def get_num_windows(audio_len, frame_len, hop_len, center):
         return 1
     else:
         return (
-            1 + torch.ceil(torch.tensor((audio_len -
-                                         frame_len) / float(hop_len))).int()
+            1 + torch.ceil(torch.tensor((audio_len - frame_len) / float(hop_len))).int()
         )
 
 
@@ -48,7 +45,16 @@ def preprocess_audio_batch(audio, sr, center=True, hop_size=0.1):
         audio = torch.mean(audio, axis=2)
 
     if sr != TARGET_SR:
-        audio = julius.resample_frac(audio, sr, TARGET_SR)
+        audio = torch.tensor(
+            resampy.resample(
+                audio.detach().cpu().numpy(),
+                sr_orig=sr,
+                sr_new=TARGET_SR,
+                filter="kaiser_best",
+            ),
+            dtype=audio.dtype,
+            device=audio.device,
+        )
 
     frame_len = TARGET_SR
     hop_len = int(hop_size * TARGET_SR)

@@ -9,23 +9,11 @@ import torch.tensor as T
 from .models import PytorchOpenl3
 from .utils import preprocess_audio_batch
 
-import traceback
-import soundfile as sf
-import numpy as np
-import six
-from numbers import Real
-from math import ceil
-import warnings
-from .torchopenl3_exceptions import TorchOpenL3Error
-
-TARGET_SR = 48000
-
 
 def get_model_path(input_repr, content_type, embedding_size):
     return os.path.join(
         os.path.dirname(__file__),
-        "torchopenl3_{}_{}_{}.pth".format(
-            input_repr, content_type, embedding_size),
+        "torchopenl3_{}_{}_{}.pth".format(input_repr, content_type, embedding_size),
     )
 
 
@@ -63,8 +51,7 @@ def load_audio_embedding_model(
             layer.state_dict()["weight"].copy_(
                 torch.from_numpy(npweights[name]["scale"])
             )
-            layer.state_dict()["bias"].copy_(
-                torch.from_numpy(npweights[name]["bias"]))
+            layer.state_dict()["bias"].copy_(torch.from_numpy(npweights[name]["bias"]))
             layer.state_dict()["running_mean"].copy_(
                 torch.from_numpy(npweights[name]["mean"])
             )
@@ -85,8 +72,7 @@ def load_audio_embedding_model(
             layer.state_dict()["weight"].copy_(
                 torch.from_numpy(npweights[name]["weights"])
             )
-            layer.state_dict()["bias"].copy_(
-                torch.from_numpy(npweights[name]["bias"]))
+            layer.state_dict()["bias"].copy_(torch.from_numpy(npweights[name]["bias"]))
 
         update_conv(model.conv2d_1, "conv2d_1")
         update_conv(model.conv2d_2, "conv2d_2")
@@ -96,6 +82,17 @@ def load_audio_embedding_model(
         update_conv(model.conv2d_6, "conv2d_6")
         update_conv(model.conv2d_7, "conv2d_7")
         update_conv(model.audio_embedding_layer, "audio_embedding_layer")
+
+        if input_repr != "linear":
+            model.speclayer.state_dict()["mel_basis"].copy_(
+                torch.from_numpy(
+                    np.load(
+                        os.path.join(
+                            os.path.dirname(__file__), f"{input_repr}_weights.npy"
+                        )
+                    ).T
+                )
+            )
 
     model = model.eval()
     return model
@@ -115,8 +112,7 @@ def get_audio_embedding(
     weight_path="",
 ):
     if model is None:
-        model = load_audio_embedding_model(
-            input_repr, content_type, embedding_size)
+        model = load_audio_embedding_model(input_repr, content_type, embedding_size)
 
     if torch.cuda.is_available():
         # Won't work with multigpu
@@ -125,20 +121,19 @@ def get_audio_embedding(
         device = "cpu"
 
     if isinstance(audio, np.ndarray):
-        audio = T(audio, device=device)
+        audio = T(audio, device=device, dtype=torch.float64)
     if isinstance(audio, torch.Tensor):
         # nsounds x nsamples (x nchannels)
         assert audio.ndim == 2 or audio.ndim == 3
         nsounds = audio.shape[0]
         if audio.is_cuda:
             model = model.cuda()
-        audio = preprocess_audio_batch(audio, sr, center, hop_size)
-        # print("audio.shape", audio.shape)
+        audio = preprocess_audio_batch(audio, sr, center, hop_size).to(torch.float32)
         total_size = audio.size()[0]
         audio_embedding = []
         with torch.set_grad_enabled(False):
             for i in range((total_size // batch_size) + 1):
-                small_batch = audio[i * batch_size: (i + 1) * batch_size]
+                small_batch = audio[i * batch_size : (i + 1) * batch_size]
                 if small_batch.shape[0] > 0:
                     # print("small_batch.shape", small_batch.shape)
                     audio_embedding.append(model(small_batch))
@@ -154,14 +149,13 @@ def get_audio_embedding(
         assert ts_list.shape[0] % nsounds == 0
         # return nsounds x nframes x ndim
         return (
-            audio_embedding.view(
-                nsounds, audio_embedding.shape[0] // nsounds, -1),
+            audio_embedding.view(nsounds, audio_embedding.shape[0] // nsounds, -1),
             ts_list,
         )
     elif isinstance(audio, list):
         if isinstance(audio[0], np.ndarray):
             for i in range(len(audio)):
-                audio[i] = T(audio[i], device=device)
+                audio[i] = T(audio[i], device=device, dtype=torch.float64)
         if audio[0].is_cuda:
             model = model.cuda()
         audio_list = audio
@@ -184,8 +178,9 @@ def get_audio_embedding(
                 audio = audio.view(1, audio.shape[0], audio.shape[1])
             else:
                 assert False
-            x = preprocess_audio_batch(
-                audio, sr, hop_size=hop_size, center=center)
+            x = preprocess_audio_batch(audio, sr, hop_size=hop_size, center=center).to(
+                torch.float32
+            )
             batch.append(x)
             file_batch_size_list.append(x.size()[0])
 
@@ -194,10 +189,13 @@ def get_audio_embedding(
         audio_embeddings = []
         with torch.set_grad_enabled(False):
             for i in range((total_size // batch_size) + 1):
-                small_batch = batch[i * batch_size: (i + 1) * batch_size]
+                small_batch = batch[i * batch_size : (i + 1) * batch_size]
                 if small_batch.shape[0] > 0:
                     audio_embeddings.append(model(small_batch))
-        audio_embeddings = torch.stack(audio_embeddings)
+
+        audio_embeddings = torch.vstack(audio_embeddings)
+        # with torch.set_grad_enabled(False):
+        #   audio_embeddings = model(batch)
         audio_embeddings = audio_embeddings.view(total_size, -1)
         start_idx = 0
         for file_batch_size in file_batch_size_list:
@@ -213,173 +211,3 @@ def get_audio_embedding(
         return embedding_list, ts_list
     else:
         assert False
-
-
-def _get_num_windows(audio_len, frame_len, hop_len, center):
-    if center:
-        audio_len += int(frame_len / 2.0)
-
-    if audio_len <= frame_len:
-        return 1
-    else:
-        return 1 + int(np.ceil((audio_len - frame_len)/float(hop_len)))
-
-
-def process_audio_file(filepath, output_dir=None, suffix=None, model=None,
-                       input_repr="mel256", content_type="music",
-                       embedding_size=6144, center=True, hop_size=0.1,
-                       batch_size=32, overwrite=False, verbose=True):
-    """
-    Computes and saves L3 embedding for a given audio file
-    Parameters
-    ----------
-    filepath : str or list[str]
-        Path or list of paths to WAV file(s) to be processed.
-    output_dir : str or None
-        Path to directory for saving output files. If None, output files will
-        be saved to the directory containing the input file.
-    suffix : str or None
-        String to be appended to the output filename, i.e. <base filename>_<suffix>.npz.
-        If None, then no suffix will be added, i.e. <base filename>.npz.
-    model : keras.models.Model or None
-        Loaded model object. If a model is provided, then `input_repr`,
-        `content_type`, and `embedding_size` will be ignored.
-        If None is provided, the model will be loaded using
-        the provided values of `input_repr`, `content_type` and
-        `embedding_size`.
-    input_repr : "linear", "mel128", or "mel256"
-        Spectrogram representation used as model input. Ignored if `model` is
-        a valid Keras model.
-    content_type : "music" or "env"
-        Type of content used to train the embedding model. Ignored if `model` is
-        a valid Keras model.
-    embedding_size : 6144 or 512
-        Embedding dimensionality. Ignored if `model` is a valid
-        Keras model.
-    center : boolean
-        If True, pads beginning of signal so timestamps correspond
-        to center of window.
-    hop_size : float
-        Hop size in seconds.
-    batch_size : int
-        Batch size used for input to embedding model
-    overwrite : bool
-        If True, overwrites existing output files
-    verbose : bool
-        If True, prints verbose messages.
-    Returns
-    -------
-    """
-    if isinstance(filepath, six.string_types):
-        filepath_list = [filepath]
-    elif isinstance(filepath, list):
-        filepath_list = filepath
-    else:
-        err_msg = 'filepath should be type str or list[str], but got {}.'
-        raise TorchOpenL3Error(err_msg.format(filepath))
-
-    if not suffix:
-        suffix = ""
-
-    # Load model
-    if not model:
-        model = load_audio_embedding_model(input_repr, content_type,
-                                           embedding_size)
-
-    audio_list = []
-    sr_list = []
-    batch_filepath_list = []
-
-    total_batch_size = 0
-
-    num_files = len(filepath_list)
-    for file_idx, filepath in enumerate(filepath_list):
-        if not os.path.exists(filepath):
-            raise TorchOpenL3Error(
-                'File "{}" could not be found.'.format(filepath))
-
-        if verbose:
-            print("torchopenl3: Processing {} ({}/{})".format(filepath,
-                                                              file_idx+1,
-                                                              num_files))
-
-        # Skip if overwriting isn't enabled and output file exists
-        output_path = get_output_path(filepath, suffix + ".npz",
-                                      output_dir=output_dir)
-        if os.path.exists(output_path) and not overwrite:
-            err_msg = "torchopenl3: {} exists and overwriting not enabled, skipping."
-            print(err_msg.format(output_path))
-            continue
-
-        try:
-            audio, sr = sf.read(filepath)
-        except Exception:
-            err_msg = 'Could not open file "{}":\n{}'
-            raise TorchOpenL3Error(err_msg.format(
-                filepath, traceback.format_exc()))
-
-        audio_list.append(audio)
-        sr_list.append(sr)
-        batch_filepath_list.append(filepath)
-
-        audio_length = ceil(audio.shape[0] / float(TARGET_SR / sr))
-        frame_length = TARGET_SR
-        hop_length = int(hop_size * TARGET_SR)
-        num_windows = _get_num_windows(audio_length, frame_length,
-                                       hop_length, center)
-        total_batch_size += num_windows
-
-        if total_batch_size >= batch_size or file_idx == (num_files - 1):
-            embedding_list, ts_list \
-                = get_audio_embedding(audio_list, sr_list, model=model,
-                                      input_repr=input_repr,
-                                      content_type=content_type,
-                                      embedding_size=embedding_size,
-                                      center=center,
-                                      hop_size=hop_size,
-                                      batch_size=batch_size,
-                                      verbose=verbose)
-            for fpath, embedding, ts in zip(batch_filepath_list,
-                                            embedding_list,
-                                            ts_list):
-                output_path = get_output_path(fpath, suffix + ".npz",
-                                              output_dir=output_dir)
-
-                np.savez(output_path, embedding=embedding, timestamps=ts)
-                assert os.path.exists(output_path)
-
-                if verbose:
-                    print("torchopenl3: Saved {}".format(output_path))
-
-            audio_list = []
-            sr_list = []
-            batch_filepath_list = []
-            total_batch_size = 0
-
-
-def get_output_path(filepath, suffix, output_dir=None):
-    """
-    Returns path to output file corresponding to the given input file.
-    Parameters
-    ----------
-    filepath : str
-        Path to audio file to be processed
-    suffix : str
-        String to append to filename (including extension)
-    output_dir : str or None
-        Path to directory where file will be saved. If None, will use directory of given filepath.
-    Returns
-    -------
-    output_path : str
-        Path to output file
-    """
-    base_filename = os.path.splitext(os.path.basename(filepath))[0]
-    if not output_dir:
-        output_dir = os.path.dirname(filepath)
-
-    if suffix[0] != '.':
-        output_filename = "{}_{}".format(base_filename, suffix)
-    else:
-        output_filename = base_filename + suffix
-
-    return os.path.join(output_dir, output_filename)
