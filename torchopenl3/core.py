@@ -83,6 +83,17 @@ def load_audio_embedding_model(
         update_conv(model.conv2d_7, "conv2d_7")
         update_conv(model.audio_embedding_layer, "audio_embedding_layer")
 
+        if input_repr != "linear":
+            model.speclayer.state_dict()["mel_basis"].copy_(
+                torch.from_numpy(
+                    np.load(
+                        os.path.join(
+                            os.path.dirname(__file__), f"{input_repr}_weights.npy"
+                        )
+                    ).T
+                )
+            )
+
     model = model.eval()
     return model
 
@@ -99,6 +110,7 @@ def get_audio_embedding(
     batch_size=32,
     verbose=True,
     weight_path="",
+    sampler="julian",
 ):
     if model is None:
         model = load_audio_embedding_model(input_repr, content_type, embedding_size)
@@ -110,15 +122,16 @@ def get_audio_embedding(
         device = "cpu"
 
     if isinstance(audio, np.ndarray):
-        audio = T(audio, device=device)
+        audio = T(audio, device=device, dtype=torch.float64)
     if isinstance(audio, torch.Tensor):
         # nsounds x nsamples (x nchannels)
         assert audio.ndim == 2 or audio.ndim == 3
         nsounds = audio.shape[0]
         if audio.is_cuda:
             model = model.cuda()
-        audio = preprocess_audio_batch(audio, sr, center, hop_size)
-        # print("audio.shape", audio.shape)
+        audio = preprocess_audio_batch(audio, sr, center, hop_size, sampler=sampler).to(
+            torch.float32
+        )
         total_size = audio.size()[0]
         audio_embedding = []
         with torch.set_grad_enabled(False):
@@ -145,7 +158,7 @@ def get_audio_embedding(
     elif isinstance(audio, list):
         if isinstance(audio[0], np.ndarray):
             for i in range(len(audio)):
-                audio[i] = T(audio[i], device=device)
+                audio[i] = T(audio[i], device=device, dtype=torch.float64)
         if audio[0].is_cuda:
             model = model.cuda()
         audio_list = audio
@@ -168,7 +181,9 @@ def get_audio_embedding(
                 audio = audio.view(1, audio.shape[0], audio.shape[1])
             else:
                 assert False
-            x = preprocess_audio_batch(audio, sr, hop_size=hop_size, center=center)
+            x = preprocess_audio_batch(
+                audio, sr, hop_size=hop_size, center=center, sampler=sampler
+            ).to(torch.float32)
             batch.append(x)
             file_batch_size_list.append(x.size()[0])
 
@@ -180,7 +195,10 @@ def get_audio_embedding(
                 small_batch = batch[i * batch_size : (i + 1) * batch_size]
                 if small_batch.shape[0] > 0:
                     audio_embeddings.append(model(small_batch))
-        audio_embeddings = torch.stack(audio_embeddings)
+
+        audio_embeddings = torch.vstack(audio_embeddings)
+        # with torch.set_grad_enabled(False):
+        #   audio_embeddings = model(batch)
         audio_embeddings = audio_embeddings.view(total_size, -1)
         start_idx = 0
         for file_batch_size in file_batch_size_list:
