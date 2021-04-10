@@ -118,5 +118,7 @@ setup(
             "jupytext==v1.10.3",  # Used in precommit hooks
         ],
     },
-    package_data={"torchopenl3": weight_files},
+    package_data={
+        "torchopenl3": weight_files + ["mel128_weights.npy", "mel256_weights.npy"]
+    },
 )

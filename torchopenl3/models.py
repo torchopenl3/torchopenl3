@@ -2,31 +2,33 @@ import librosa
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from nnAudio import Spectrogram
 from torch import tensor as T
+import numpy as np
+from torch.nn.functional import conv1d
 
 import torchopenl3.core
 
 
-class CustomSpectrogram(nn.Module):
+class CustomSTFT(nn.Module):
     """
-    Custom Spectrogram implemented to mimic---but unfortunately not
-    completely replicate---behavior of kapre 0.1.4, which is required
-    by openl3 0.3.1
+    STFT implemented like kapre 0.1.4.
     Attributes
     ----------
-    type: str
-      the type of the spectrogram. one option from "lin", "mel128" or "mel256"
-    n_fft: int
-      The window size for the STFT
-    n_hop: int
-      The hop (or stride) size
-    pad: bool
-      Pad the output to have same shape
+      n_dft: int
+        The window size for the STFT
+      n_hop: int
+        The hop (or stride) size
+      power_spectrogram: float
+        2.0 to get power spectrogram, 1.0 to get amplitude spectrogram.
+      return_decibel_spectrogram: bool
+        Whether to return in decibel or not, i.e. returns
+        log10(amplitude spectrogram) if True
+
     Returns
     -------
     spectrogram : torch.tensor
         It returns a tensor of spectrograms.
+
     Examples
     --------
     >>> speclayer = CustomSpectrogram("mel256", n_fft = 512, n_hop = 242, \
@@ -34,99 +36,195 @@ class CustomSpectrogram(nn.Module):
     >>> specs = speclayer(x)
     """
 
-    def __init__(self, type, n_fft, n_hop, asr, pad):
-        assert isinstance(type, str)
-        assert isinstance(n_fft, int)
-        assert isinstance(n_hop, int)
-        assert isinstance(asr, int)
-        assert isinstance(pad, bool)
+    def __init__(
+        self,
+        n_dft=512,
+        n_hop=None,
+        power_spectrogram=2.0,
+        return_decibel_spectrogram=False,
+    ):
 
         super().__init__()
-        self.type = type
-
-        self.n_fft = n_fft
+        if n_hop is None:
+            n_hop = n_dft // 2
+        self.n_dft = n_dft
         self.n_hop = n_hop
-        self.asr = asr
-        self.pad = pad
+        self.power_spectrogram = float(power_spectrogram)
+        self.return_decibel_spectrogram = return_decibel_spectrogram
 
-        self.stft = Spectrogram.STFT(
-            n_fft=n_fft,
-            win_length=None,
-            freq_bins=None,
-            hop_length=n_hop,
-            window="hann",
-            freq_scale="no",
-            center=False,
-            iSTFT=False,
-            fmin=0,
-            fmax=asr // 2,
-            sr=asr,
-            trainable=False,
-            output_format="Magnitude",
-            verbose=False,
+        dft_real_kernels, dft_imag_kernels = self.get_stft_kernels(self.n_dft)
+        self.register_buffer(
+            "dft_real_kernels",
+            T(dft_real_kernels, requires_grad=False, dtype=torch.float32)
+            .squeeze(1)
+            .swapaxes(0, 2),
         )
-        if torch.cuda.is_available():
-            # Won't work with multigpu
-            device = "cuda"
-        else:
-            device = "cpu"
-        if self.type == "mel128":
-            self.mel_basis = librosa.filters.mel(
-                sr=asr, n_fft=n_fft, n_mels=128, fmin=0, fmax=asr // 2, htk=True, norm=1
-            )
-            self.mel_basis = T(self.mel_basis, dtype=torch.float32, device=device)
-        elif self.type == "mel256":
-            self.mel_basis = librosa.filters.mel(
-                sr=asr, n_fft=n_fft, n_mels=256, fmin=0, fmax=asr // 2, htk=True, norm=1
-            )
-            self.mel_basis = T(self.mel_basis, dtype=torch.float32, device=device)
+        self.register_buffer(
+            "dft_imag_kernels",
+            T(dft_imag_kernels, requires_grad=False, dtype=torch.float32)
+            .squeeze(1)
+            .swapaxes(0, 2),
+        )
 
     def forward(self, x):
         """
-        Convert a batch of waveforms to Mel spectrograms or spectrogram
-        depening on the type.
+        Convert a batch of waveforms to STFT forms.
+
         Parameters
         ----------
         x : torch tensor
         """
-        if self.pad:
-            x = self.custom_pad(x)
+        if x.is_cuda and not self.dft_real_kernels.is_cuda:
+            self.dft_real_kernels = self.dft_real_kernels.cuda()
+            self.dft_imag_kernels = self.dft_imag_kernels.cuda()
 
-        x_stft = self.stft(x)
-        if self.type == "linear":
-            x_stft = x_stft
-        elif self.type == "mel128" or self.type == "mel256":
-            x_stft = torch.pow(x_stft, 2)
-            x_stft = torch.sqrt(torch.matmul(self.mel_basis, x_stft))
-        else:
-            raise ValueError("The type should either be linear or mel128 or mel256")
+        output_real = conv1d(
+            x, self.dft_real_kernels, stride=self.n_hop, padding=0
+        ).unsqueeze(3)
+        output_imag = conv1d(
+            x, self.dft_imag_kernels, stride=self.n_hop, padding=0
+        ).unsqueeze(3)
+        output = output_real.pow(2) + output_imag.pow(2)
 
-        return self.amplitude_to_decibel(x_stft)
+        if self.power_spectrogram != 2.0:
+            output = torch.pow(torch.sqrt(output), self.power_spectrogram)
+        if self.return_decibel_spectrogram:
+            output = self.amplitude_to_decibel(output)
+        return output
+
+    def get_stft_kernels(self, n_dft):
+        """
+        Get the STFT kernels.
+        Implemented similar to kapre=0.1.4
+        """
+
+        nb_filter = int(n_dft // 2 + 1)
+
+        # prepare DFT filters
+        timesteps = np.array(range(n_dft))
+        w_ks = np.arange(nb_filter) * 2 * np.pi / float(n_dft)
+        dft_real_kernels = np.cos(w_ks.reshape(-1, 1) * timesteps.reshape(1, -1))
+        dft_imag_kernels = -np.sin(w_ks.reshape(-1, 1) * timesteps.reshape(1, -1))
+
+        # windowing DFT filters
+        dft_window = librosa.filters.get_window(
+            "hann", n_dft, fftbins=True
+        )  # _hann(n_dft, sym=False)
+        dft_window = dft_window.astype(np.float32)
+        dft_window = dft_window.reshape((1, -1))
+        dft_real_kernels = np.multiply(dft_real_kernels, dft_window)
+        dft_imag_kernels = np.multiply(dft_imag_kernels, dft_window)
+
+        dft_real_kernels = dft_real_kernels.transpose()
+        dft_imag_kernels = dft_imag_kernels.transpose()
+        dft_real_kernels = dft_real_kernels[:, np.newaxis, np.newaxis, :]
+        dft_imag_kernels = dft_imag_kernels[:, np.newaxis, np.newaxis, :]
+
+        return (
+            dft_real_kernels.astype(np.float32),
+            dft_imag_kernels.astype(np.float32),
+        )
 
     def amplitude_to_decibel(self, x, amin=1e-10, dynamic_range=80.0):
         """
         Convert (linear) amplitude to decibel (log10(x)).
-        Implemented similar to kapre-0.1.4
+        Implemented similar to kapre=0.1.4
         """
-        device = x.device
 
-        # print("device", device)
-        # print("x", x)
         log_spec = (
-            T(10.0, dtype=torch.float32, device=device)
-            * torch.log(torch.maximum(x, T(amin, device=device)))
-            / torch.log(T(10.0, dtype=torch.float32, device=device))
+            10 * torch.log(torch.clamp(x, min=amin)) / np.log(10).astype(np.float32)
         )
-        # print("log_spec", log_spec)
         if x.ndim > 1:
             axis = tuple(range(x.ndim)[1:])
         else:
             axis = None
-        # print("axis", axis)
 
         log_spec = log_spec - torch.amax(log_spec, dim=axis, keepdims=True)
-        log_spec = torch.maximum(log_spec, T(-1 * dynamic_range, device=device))
+        log_spec = torch.clamp(log_spec, min=-1 * dynamic_range)
         return log_spec
+
+
+class CustomMelSTFT(CustomSTFT):
+    """
+    MelSTFT implemented like kapre 0.1.4.
+    Attributes
+    ----------
+      sr: int
+
+      n_dft: int
+        The window size for the STFT
+      n_hop: int
+        The hop (or stride) size
+      power_spectrogram: float
+        2.0 to get power spectrogram, 1.0 to get amplitude spectrogram.
+      return_decibel_spectrogram: bool
+        Whether to return in decibel or not, i.e. returns
+        log10(amplitude spectrogram) if True
+
+    Returns
+    -------
+    spectrogram : torch.tensor
+        It returns a tensor of spectrograms.
+
+    Examples
+    --------
+    >>> stftlayer = CustomSTFT(n_dft = 512, n_hop = 242,
+        power_spectrogram = 2.0,
+        return_decibel_spectrogram=False)
+    >>> stftlayer = speclayer(x)
+    """
+
+    def __init__(
+        self,
+        sr,
+        n_dft=512,
+        n_hop=None,
+        n_mels=128,
+        htk=True,
+        power_melgram=1.0,
+        return_decibel_melgram=False,
+        padding="same",
+    ):
+        super().__init__(
+            n_dft=n_dft,
+            n_hop=n_hop,
+            power_spectrogram=2.0,
+            return_decibel_spectrogram=False,
+        )
+        self.padding = padding
+        self.sr = sr
+        self.power_melgram = power_melgram
+        self.return_decibel_melgram = return_decibel_melgram
+
+        mel_basis = librosa.filters.mel(
+            sr=sr,
+            n_fft=n_dft,
+            n_mels=n_mels,
+            fmin=0,
+            fmax=sr // 2,
+            htk=htk,
+            norm=1,
+        )
+        self.register_buffer("mel_basis", T(mel_basis, requires_grad=False))
+
+    def forward(self, x):
+
+        if x.is_cuda and not self.dft_real_kernels.is_cuda:
+            self.dft_real_kernels = self.dft_real_kernels.cuda()
+            self.dft_imag_kernels = self.dft_imag_kernels.cuda()
+            self.mel_basis = self.mel_basis.cuda()
+
+        if self.padding == "same":
+            x = self.custom_pad(x)
+
+        output = super().forward(x)
+        output = torch.matmul(self.mel_basis, output.squeeze(-1)).unsqueeze(-1)
+
+        if self.power_melgram != 2.0:
+            output = torch.pow(torch.sqrt(output), self.power_melgram)
+        if self.return_decibel_melgram:
+            output = self.amplitude_to_decibel(output)
+        return output
 
     def custom_pad(self, x):
         """
@@ -134,9 +232,9 @@ class CustomSpectrogram(nn.Module):
         Implemented similar to keras version used in kapre=0.1.4
         """
 
-        filter_width = self.n_fft
+        filter_width = self.n_dft
         strides = self.n_hop
-        in_width = self.asr
+        in_width = self.sr
 
         if in_width % strides == 0:
             pad_along_width = max(filter_width - strides, 0)
@@ -146,7 +244,7 @@ class CustomSpectrogram(nn.Module):
         pad_left = pad_along_width // 2
         pad_right = pad_along_width - pad_left
 
-        x = torch.nn.ZeroPad2d((pad_left, pad_right, 0, 0))(T(x))
+        x = torch.nn.ZeroPad2d((pad_left, pad_right, 0, 0))(x)
         return x
 
 
@@ -159,46 +257,47 @@ class PytorchOpenl3(nn.Module):
             "mel128": {512: (16, 24), 6144: (4, 8)},
             "mel256": {512: (32, 24), 6144: (8, 8)},
         }
-        self.n_dft = {
-            "linear": 512,
-            "mel128": 2048,
-            "mel256": 2048,
-        }
-        self.pad = {
-            "linear": False,
-            "mel128": True,
-            "mel256": True,
-        }
 
-        # New approach
-        self.speclayer = CustomSpectrogram(
-            input_repr,
-            n_fft=self.n_dft[input_repr],
-            n_hop=242,
-            asr=48000,
-            pad=self.pad[input_repr],
-        )
-
-        # Old approach, commenting it out if we need it
-        """
         if input_repr == "linear":
-            self.speclayer = CustomSpectrogram(
-                input_repr, n_fft=self.n_dft[input_repr], n_hop=242, asr=48000
+            self.speclayer = CustomSTFT(
+                n_dft=512,
+                n_hop=242,
+                power_spectrogram=1.0,
+                return_decibel_spectrogram=True,
             )
+
         elif input_repr == "mel128":
-            self.speclayer = Spectrogram.MelSpectrogram(
-                sr=48000, n_fft=2048, n_mels=128, hop_length=242, power=1.0, htk=True
+            self.speclayer = CustomMelSTFT(
+                sr=48000,
+                n_dft=2048,
+                n_hop=242,
+                n_mels=128,
+                htk=True,
+                power_melgram=1.0,
+                return_decibel_melgram=True,
+                padding="same",
             )
+
         elif input_repr == "mel256":
-            self.speclayer = Spectrogram.MelSpectrogram(
-                sr=48000, n_fft=2048, n_mels=256, hop_length=242, power=1.0, htk=True
+            self.speclayer = CustomMelSTFT(
+                sr=48000,
+                n_dft=2048,
+                n_hop=242,
+                n_mels=256,
+                htk=True,
+                power_melgram=1.0,
+                return_decibel_melgram=True,
+                padding="same",
             )
-        """
 
         self.input_repr = input_repr
         self.embedding_size = embedding_size
         self.batch_normalization_1 = self.__batch_normalization(
-            2, "batch_normalization_1", num_features=1, eps=0.001, momentum=0.99
+            2,
+            "batch_normalization_1",
+            num_features=1,
+            eps=0.001,
+            momentum=0.99,
         )
         self.conv2d_1 = self.__conv(
             2,
@@ -211,7 +310,11 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
         self.batch_normalization_2 = self.__batch_normalization(
-            2, "batch_normalization_2", num_features=64, eps=0.001, momentum=0.99
+            2,
+            "batch_normalization_2",
+            num_features=64,
+            eps=0.001,
+            momentum=0.99,
         )
         self.conv2d_2 = self.__conv(
             2,
@@ -224,7 +327,11 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
         self.batch_normalization_3 = self.__batch_normalization(
-            2, "batch_normalization_3", num_features=64, eps=0.001, momentum=0.99
+            2,
+            "batch_normalization_3",
+            num_features=64,
+            eps=0.001,
+            momentum=0.99,
         )
         self.conv2d_3 = self.__conv(
             2,
@@ -237,7 +344,11 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
         self.batch_normalization_4 = self.__batch_normalization(
-            2, "batch_normalization_4", num_features=128, eps=0.001, momentum=0.99
+            2,
+            "batch_normalization_4",
+            num_features=128,
+            eps=0.001,
+            momentum=0.99,
         )
         self.conv2d_4 = self.__conv(
             2,
@@ -250,7 +361,11 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
         self.batch_normalization_5 = self.__batch_normalization(
-            2, "batch_normalization_5", num_features=128, eps=0.001, momentum=0.99
+            2,
+            "batch_normalization_5",
+            num_features=128,
+            eps=0.001,
+            momentum=0.99,
         )
         self.conv2d_5 = self.__conv(
             2,
@@ -263,7 +378,11 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
         self.batch_normalization_6 = self.__batch_normalization(
-            2, "batch_normalization_6", num_features=256, eps=0.001, momentum=0.99
+            2,
+            "batch_normalization_6",
+            num_features=256,
+            eps=0.001,
+            momentum=0.99,
         )
         self.conv2d_6 = self.__conv(
             2,
@@ -276,7 +395,11 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
         self.batch_normalization_7 = self.__batch_normalization(
-            2, "batch_normalization_7", num_features=256, eps=0.001, momentum=0.99
+            2,
+            "batch_normalization_7",
+            num_features=256,
+            eps=0.001,
+            momentum=0.99,
         )
         self.conv2d_7 = self.__conv(
             2,
@@ -289,7 +412,11 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
         self.batch_normalization_8 = self.__batch_normalization(
-            2, "batch_normalization_8", num_features=512, eps=0.001, momentum=0.99
+            2,
+            "batch_normalization_8",
+            num_features=512,
+            eps=0.001,
+            momentum=0.99,
         )
         self.audio_embedding_layer = self.__conv(
             2,
@@ -306,7 +433,7 @@ class PytorchOpenl3(nn.Module):
         if keep_all_outputs:
             all_outputs = []
         x = self.speclayer(x)
-        x = x.unsqueeze(1)
+        x = x.squeeze(-1).unsqueeze(1)
         if keep_all_outputs:
             all_outputs.append(x)
         batch_normalization_1 = self.batch_normalization_1(x)
@@ -333,7 +460,11 @@ class PytorchOpenl3(nn.Module):
         if keep_all_outputs:
             all_outputs.append(activation_2)
         max_pooling2d_1 = F.max_pool2d(
-            activation_2, kernel_size=(2, 2), stride=(2, 2), padding=0, ceil_mode=False
+            activation_2,
+            kernel_size=(2, 2),
+            stride=(2, 2),
+            padding=0,
+            ceil_mode=False,
         )
         if keep_all_outputs:
             all_outputs.append(max_pooling2d_1)
@@ -358,7 +489,11 @@ class PytorchOpenl3(nn.Module):
         if keep_all_outputs:
             all_outputs.append(activation_4)
         max_pooling2d_2 = F.max_pool2d(
-            activation_4, kernel_size=(2, 2), stride=(2, 2), padding=0, ceil_mode=False
+            activation_4,
+            kernel_size=(2, 2),
+            stride=(2, 2),
+            padding=0,
+            ceil_mode=False,
         )
         if keep_all_outputs:
             all_outputs.append(max_pooling2d_2)
@@ -383,7 +518,11 @@ class PytorchOpenl3(nn.Module):
         if keep_all_outputs:
             all_outputs.append(activation_6)
         max_pooling2d_3 = F.max_pool2d(
-            activation_6, kernel_size=(2, 2), stride=(2, 2), padding=0, ceil_mode=False
+            activation_6,
+            kernel_size=(2, 2),
+            stride=(2, 2),
+            padding=0,
+            ceil_mode=False,
         )
         if keep_all_outputs:
             all_outputs.append(max_pooling2d_3)
