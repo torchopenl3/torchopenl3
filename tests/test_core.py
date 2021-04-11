@@ -295,7 +295,7 @@ def test_get_audio_embedding():
     n_frames = 1 + int((audio.shape[0] + sr // 2 - sr) / float(int(hop_size * sr)))
     assert len(emb_list) == 2
     assert len(ts_list) == 2
-    assert emb_list[0].shape[1] == n_frames
+    assert emb_list[0].shape[0] == n_frames
     assert np.allclose(to_numpy(emb_list[0]), to_numpy(emb_list[1]))
     assert np.allclose(ts_list[0], ts_list[1])
 
@@ -313,7 +313,7 @@ def test_get_audio_embedding():
     assert type(ts_list) == list
     assert len(emb_list) == 2
     assert len(ts_list) == 2
-    assert emb_list[0].shape[1] == n_frames
+    assert emb_list[0].shape[0] == n_frames
     assert np.allclose(to_numpy(emb_list[0]), to_numpy(emb_list[1]))
     assert np.allclose(ts_list[0], ts_list[1])
 
@@ -334,5 +334,5 @@ def test_get_audio_embedding():
     assert type(ts_list) == list
     assert len(emb_list) == 2
     assert len(ts_list) == 2
-    assert emb_list[0].shape[1] == n_frames
-    assert emb_list[1].shape[1] == n_frames_2
+    assert emb_list[0].shape[0] == n_frames
+    assert emb_list[1].shape[0] == n_frames_2
