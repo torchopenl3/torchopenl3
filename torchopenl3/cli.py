@@ -241,7 +241,8 @@ def parse_args(args):
 
 def main():
     """
-    Extracts audio embeddings from models based on the Look, Listen, and Learn models (Arandjelovic and Zisserman 2017).
+    Extracts audio embeddings from models based on the Look, Listen,
+    and Learn models (Arandjelovic and Zisserman 2017).
     """
     args = parse_args(sys.argv[1:])
 
