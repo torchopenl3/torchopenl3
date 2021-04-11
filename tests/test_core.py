@@ -8,25 +8,16 @@ import soundfile as sf
 import torchopenl3
 import torchopenl3.models
 
+TEST_DIR = os.path.dirname(__file__)
+TEST_AUDIO_DIR = os.path.join(TEST_DIR, "data", "audio")
 
-AUDIO_URLS = {
-    "CHIRP_1S_PATH": "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_1s.wav",
-    "CHIRP_STEREO_PATH": "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_stereo.wav",
-    "CHIRP_44K_PATH": "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_44k.wav",
-    "CHIRP_MONO_PATH": "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_mono.wav",
-    "SHORT_PATH": "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/short.wav",
-    "SILENCE_PATH": "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/silence.wav",
-}
-
-filenames = {}
-
-with tempfile.TemporaryDirectory() as tmpdirname:
-    filenames = {}
-    for path, url in AUDIO_URLS.items():
-        filename = os.path.join(tmpdirname, os.path.split(url)[1])
-        r = requests.get(url, allow_redirects=True)
-        open(filename, "wb").write(r.content)
-        filenames[path] = filename
+CHIRP_MONO_PATH = os.path.join(TEST_AUDIO_DIR, "chirp_mono.wav")
+CHIRP_STEREO_PATH = os.path.join(TEST_AUDIO_DIR, "chirp_stereo.wav")
+CHIRP_44K_PATH = os.path.join(TEST_AUDIO_DIR, "chirp_44k.wav")
+CHIRP_1S_PATH = os.path.join(TEST_AUDIO_DIR, "chirp_1s.wav")
+EMPTY_PATH = os.path.join(TEST_AUDIO_DIR, "empty.wav")
+SHORT_PATH = os.path.join(TEST_AUDIO_DIR, "short.wav")
+SILENCE_PATH = os.path.join(TEST_AUDIO_DIR, "silence.wav")
 
 
 def to_numpy(a):
@@ -45,7 +36,7 @@ def test_get_audio_embedding():
     tol = 1e-5
 
     # Make sure all embedding types work fine
-    audio, sr = sf.read(filenames["CHIRP_MONO_PATH"])
+    audio, sr = sf.read(CHIRP_MONO_PATH)
     emb1, ts1 = torchopenl3.get_audio_embedding(
         audio,
         sr,
@@ -123,7 +114,7 @@ def test_get_audio_embedding():
     assert emb1.shape[1] == 512
     assert not np.any(np.isnan(emb1))
 
-    audio, sr = sf.read(filenames["CHIRP_MONO_PATH"])
+    audio, sr = sf.read(CHIRP_MONO_PATH)
     emb1, ts1 = torchopenl3.get_audio_embedding(
         audio,
         sr,
@@ -239,7 +230,7 @@ def test_get_audio_embedding():
     assert np.all(np.abs(ts1load - ts1) < tol)
 
     # Make sure that the embeddings are approximately the same with mono and stereo
-    audio, sr = sf.read(filenames["CHIRP_STEREO_PATH"])
+    audio, sr = sf.read(CHIRP_STEREO_PATH)
     emb2, _ = torchopenl3.get_audio_embedding(
         audio, sr, model=model, center=True, hop_size=0.1, verbose=True
     )
@@ -249,7 +240,7 @@ def test_get_audio_embedding():
     assert not np.any(np.isnan(emb2))
 
     # Make sure that the embeddings are approximately the same if we resample the audio
-    audio, sr = sf.read(filenames["CHIRP_44K_PATH"])
+    audio, sr = sf.read(CHIRP_44K_PATH)
     emb3, _ = torchopenl3.get_audio_embedding(
         audio, sr, model=model, center=True, hop_size=0.1, verbose=True
     )
@@ -259,7 +250,7 @@ def test_get_audio_embedding():
     assert not np.any(np.isnan(emb3))
 
     # Check for centering
-    audio, sr = sf.read(filenames["CHIRP_1S_PATH"])
+    audio, sr = sf.read(CHIRP_1S_PATH)
     emb6, _ = torchopenl3.get_audio_embedding(
         audio, sr, model=model, center=True, hop_size=hop_size, verbose=True
     )
@@ -281,7 +272,7 @@ def test_get_audio_embedding():
     assert emb8.shape[0] == n_frames
 
     # Check batch processing with multiple files with a single sample rate
-    audio, sr = sf.read(filenames["CHIRP_MONO_PATH"])
+    audio, sr = sf.read(CHIRP_MONO_PATH)
     hop_size = 0.1
     emb_list, ts_list = torchopenl3.get_audio_embedding(
         [audio, audio], sr, model=model, center=True, hop_size=hop_size, batch_size=4

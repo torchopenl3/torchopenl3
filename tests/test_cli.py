@@ -15,26 +15,16 @@ import numpy as np
 from unittest.mock import patch
 import requests
 
-AUDIO_URLS = {
-    "CHIRP_1S_PATH": "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_1s.wav",
-    "CHIRP_STEREO_PATH": "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_stereo.wav",
-    "CHIRP_44K_PATH": "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_44k.wav",
-    "CHIRP_MONO_PATH": "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/chirp_mono.wav",
-    "SHORT_PATH": "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/short.wav",
-    "SILENCE_PATH": "https://raw.githubusercontent.com/marl/openl3/master/tests/data/audio/silence.wav",
-}
+TEST_DIR = os.path.dirname(__file__)
+TEST_AUDIO_DIR = os.path.join(TEST_DIR, "data", "audio")
 
-filenames = {}
-
-with tempfile.TemporaryDirectory() as tmpdirname:
-    filenames = {}
-    for path, url in AUDIO_URLS.items():
-        filename = os.path.join(tmpdirname, os.path.split(url)[1])
-        r = requests.get(url, allow_redirects=True)
-        open(filename, "wb").write(r.content)
-        filenames[path] = filename
-
-TEST_AUDIO_DIR = os.path.dirname(filenames["CHIRP_1S_PATH"])
+CHIRP_MONO_PATH = os.path.join(TEST_AUDIO_DIR, "chirp_mono.wav")
+CHIRP_STEREO_PATH = os.path.join(TEST_AUDIO_DIR, "chirp_stereo.wav")
+CHIRP_44K_PATH = os.path.join(TEST_AUDIO_DIR, "chirp_44k.wav")
+CHIRP_1S_PATH = os.path.join(TEST_AUDIO_DIR, "chirp_1s.wav")
+EMPTY_PATH = os.path.join(TEST_AUDIO_DIR, "empty.wav")
+SHORT_PATH = os.path.join(TEST_AUDIO_DIR, "short.wav")
+SILENCE_PATH = os.path.join(TEST_AUDIO_DIR, "silence.wav")
 
 
 def test_positive_float():
@@ -79,31 +69,28 @@ def test_positive_int():
 def test_get_file_list():
 
     # test for invalid input (must be iterable, e.g. list)
-    pytest.raises(ArgumentTypeError, get_file_list, filenames["CHIRP_44K_PATH"])
+    pytest.raises(ArgumentTypeError, get_file_list, CHIRP_44K_PATH)
 
     # test for valid list of file paths
-    flist = get_file_list([filenames["CHIRP_44K_PATH"], filenames["CHIRP_1S_PATH"]])
+    flist = get_file_list([CHIRP_44K_PATH, CHIRP_1S_PATH])
     assert len(flist) == 2
-    assert (
-        flist[0] == filenames["CHIRP_44K_PATH"]
-        and flist[1] == filenames["CHIRP_1S_PATH"]
-    )
+    assert flist[0] == CHIRP_44K_PATH and flist[1] == CHIRP_1S_PATH
 
     # test for valid folder
     flist = get_file_list([TEST_AUDIO_DIR])
     assert len(flist) == 7
 
     flist = sorted(flist)
-    assert flist[0] == filenames["CHIRP_1S_PATH"]
-    assert flist[1] == filenames["CHIRP_44K_PATH"]
-    assert flist[2] == filenames["CHIRP_MONO_PATH"]
-    assert flist[3] == filenames["CHIRP_STEREO_PATH"]
-    assert flist[4] == filenames["EMPTY_PATH"]
-    assert flist[5] == filenames["SHORT_PATH"]
-    assert flist[6] == filenames["SILENCE_PATH"]
+    assert flist[0] == CHIRP_1S_PATH
+    assert flist[1] == CHIRP_44K_PATH
+    assert flist[2] == CHIRP_MONO_PATH
+    assert flist[3] == CHIRP_STEREO_PATH
+    assert flist[4] == EMPTY_PATH
+    assert flist[5] == SHORT_PATH
+    assert flist[6] == SILENCE_PATH
 
     # combine list of files and folders
-    flist = get_file_list([TEST_AUDIO_DIR, filenames["CHIRP_44K_PATH"]])
+    flist = get_file_list([TEST_AUDIO_DIR, CHIRP_44K_PATH])
     assert len(flist) == 8
 
     # nonexistent path
@@ -113,9 +100,9 @@ def test_get_file_list():
 def test_parse_args():
 
     # test for all the defaults
-    args = [filenames["CHIRP_44K_PATH"]]
+    args = [CHIRP_44K_PATH]
     args = parse_args(args)
-    assert args.inputs == [filenames["CHIRP_44K_PATH"]]
+    assert args.inputs == [CHIRP_44K_PATH]
     assert args.output_dir is None
     assert args.suffix is None
     assert args.input_repr == "mel256"
@@ -130,8 +117,7 @@ def test_main():
 
     tempdir = tempfile.mkdtemp()
     with patch(
-        "sys.argv",
-        ["torchopenl3", filenames["CHIRP_44K_PATH"], "--output-dir", tempdir],
+        "sys.argv", ["torchopenl3", CHIRP_44K_PATH, "--output-dir", tempdir],
     ):
         main()
 
@@ -157,8 +143,7 @@ def test_script_main():
     # Duplicate audio regression test from test_run just to hit coverage
     tempdir = tempfile.mkdtemp()
     with patch(
-        "sys.argv",
-        ["torchopenl3", filenames["CHIRP_44K_PATH"], "--output-dir", tempdir],
+        "sys.argv", ["torchopenl3", CHIRP_44K_PATH, "--output-dir", tempdir],
     ):
         import torchopenl3.__main__
 

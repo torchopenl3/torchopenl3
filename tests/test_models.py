@@ -6,7 +6,7 @@ class TestModels:
     def _test_model(self, input_repr, content_type, embedding_size):
         m = load_audio_embedding_model(input_repr, content_type, embedding_size)
         assert m.embedding_size == embedding_size
-        assert m.input_repr == content_type
+        assert m.input_repr == input_repr
         for i, child in enumerate(m.children()):
             if i % 2 == 0:
                 assert isinstance(child, torch.nn.modules.batchnorm.BatchNorm2d)
