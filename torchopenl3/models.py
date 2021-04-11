@@ -104,12 +104,8 @@ class CustomSTFT(nn.Module):
         # prepare DFT filters
         timesteps = np.array(range(n_dft))
         w_ks = np.arange(nb_filter) * 2 * np.pi / float(n_dft)
-        dft_real_kernels = np.cos(
-            w_ks.reshape(-1, 1) * timesteps.reshape(1, -1)
-        )
-        dft_imag_kernels = -np.sin(
-            w_ks.reshape(-1, 1) * timesteps.reshape(1, -1)
-        )
+        dft_real_kernels = np.cos(w_ks.reshape(-1, 1) * timesteps.reshape(1, -1))
+        dft_imag_kernels = -np.sin(w_ks.reshape(-1, 1) * timesteps.reshape(1, -1))
 
         # windowing DFT filters
         dft_window = librosa.filters.get_window(
@@ -137,9 +133,7 @@ class CustomSTFT(nn.Module):
         """
 
         log_spec = (
-            10
-            * torch.log(torch.clamp(x, min=amin))
-            / np.log(10).astype(np.float32)
+            10 * torch.log(torch.clamp(x, min=amin)) / np.log(10).astype(np.float32)
         )
         if x.ndim > 1:
             axis = tuple(range(x.ndim)[1:])
@@ -225,9 +219,7 @@ class CustomMelSTFT(CustomSTFT):
             x = self.custom_pad(x)
 
         output = super().forward(x)
-        output = torch.matmul(self.mel_basis, output.squeeze(-1)).unsqueeze(
-            -1
-        )
+        output = torch.matmul(self.mel_basis, output.squeeze(-1)).unsqueeze(-1)
 
         if self.power_melgram != 2.0:
             output = torch.pow(torch.sqrt(output), self.power_melgram)
@@ -546,19 +538,13 @@ class PytorchOpenl3(nn.Module):
         if keep_all_outputs:
             all_outputs.append(activation_7)
         audio_embedding_layer_pad = F.pad(activation_7, (1, 1, 1, 1))
-        audio_embedding_layer = self.audio_embedding_layer(
-            audio_embedding_layer_pad
-        )
+        audio_embedding_layer = self.audio_embedding_layer(audio_embedding_layer_pad)
         if keep_all_outputs:
             all_outputs.append(audio_embedding_layer)
         max_pooling2d_4 = F.max_pool2d(
             audio_embedding_layer,
-            kernel_size=self.AUDIO_POOLING_SIZES[self.input_repr][
-                self.embedding_size
-            ],
-            stride=self.AUDIO_POOLING_SIZES[self.input_repr][
-                self.embedding_size
-            ],
+            kernel_size=self.AUDIO_POOLING_SIZES[self.input_repr][self.embedding_size],
+            stride=self.AUDIO_POOLING_SIZES[self.input_repr][self.embedding_size],
             padding=0,
             ceil_mode=False,
         )

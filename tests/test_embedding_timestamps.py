@@ -15,11 +15,13 @@ from tqdm.auto import tqdm
 import torchopenl3
 
 PARAMS = OrderedDict(
-    {"center": [True, False], "hop_size": [0.1, 0.2718, 0.5],}
+    {
+        "center": [True, False],
+        "hop_size": [0.1, 0.2718, 0.5],
+    }
 )
 paramlist = [
-    dict(zip(PARAMS.keys(), p))
-    for p in itertools.product(*list(PARAMS.values()))
+    dict(zip(PARAMS.keys(), p)) for p in itertools.product(*list(PARAMS.values()))
 ]
 
 
@@ -43,11 +45,7 @@ class TestEmbeddingTimestamps:
             )
             ts0 = np.vstack(ts0)
             emb1, ts1 = torchopenl3.get_audio_embedding(
-                torch.stack(sounds),
-                48000,
-                sampler="resampy",
-                batch_size=32,
-                **params
+                torch.stack(sounds), 48000, sampler="resampy", batch_size=32, **params
             )
             assert torch.mean(torch.abs(ts1 - ts0)) <= 1e-6
 
@@ -65,10 +63,6 @@ class TestEmbeddingTimestamps:
             )
             ts0 = np.vstack(ts0)
             emb1, ts1 = torchopenl3.get_audio_embedding(
-                torch.stack(sounds),
-                48000,
-                batch_size=32,
-                sampler="resampy",
-                **params
+                torch.stack(sounds), 48000, batch_size=32, sampler="resampy", **params
             )
             assert torch.mean(torch.abs(ts1 - ts0)) <= 1e-6

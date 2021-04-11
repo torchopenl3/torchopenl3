@@ -41,12 +41,8 @@ def positive_int(value):
 
 def get_file_list(input_list):
     """Get list of files from the list of inputs"""
-    if not isinstance(input_list, Iterable) or isinstance(
-        input_list, string_types
-    ):
-        raise ArgumentTypeError(
-            "input_list must be iterable (and not string)"
-        )
+    if not isinstance(input_list, Iterable) or isinstance(input_list, string_types):
+        raise ArgumentTypeError("input_list must be iterable (and not string)")
     file_list = []
     for item in input_list:
         if os.path.isfile(item):
@@ -122,14 +118,10 @@ def run(
         raise TorchOpenL3Error("Invalid input: {}".format(str(inputs)))
 
     if len(file_list) == 0:
-        print(
-            "torchopenl3: No files found in {}. Aborting.".format(str(inputs))
-        )
+        print("torchopenl3: No files found in {}. Aborting.".format(str(inputs)))
         sys.exit(-1)
 
-    model = load_audio_embedding_model(
-        input_repr, content_type, audio_embedding_size
-    )
+    model = load_audio_embedding_model(input_repr, content_type, audio_embedding_size)
 
     process_audio_file(
         file_list,

@@ -42,9 +42,7 @@ TARGET_SR = 48000
 
 
 def center_audio(audio, frame_len):
-    return np.pad(
-        audio, (int(frame_len / 2.0), 0), mode="constant", constant_values=0
-    )
+    return np.pad(audio, (int(frame_len / 2.0), 0), mode="constant", constant_values=0)
 
 
 def pad_audio(audio, frame_len, hop_len):
@@ -57,9 +55,7 @@ def pad_audio(audio, frame_len, hop_len):
         ) * hop_len - (audio_len - frame_len)
 
     if pad_length > 0:
-        audio = np.pad(
-            audio, (0, pad_length), mode="constant", constant_values=0
-        )
+        audio = np.pad(audio, (0, pad_length), mode="constant", constant_values=0)
 
     return audio
 
@@ -133,9 +129,7 @@ class LayerByLayer:
         openl3_model = Model(inputs=[inp], outputs=oups)
 
         # Torchopenl3 Model
-        torchopenl3_model = torchopenl3.core.load_audio_embedding_model(
-            **modelparams
-        )
+        torchopenl3_model = torchopenl3.core.load_audio_embedding_model(**modelparams)
         #        torchopenl3_model = torchopenl3.model.PytorchOpenl3(**modelparams)
         #        torchopenl3_model.load_state_dict(
         #            torch.load(torchopenl3.core.get_model_path(**modelparams))
@@ -160,19 +154,12 @@ class LayerByLayer:
                         f"{i} {openl3_output[i].shape} {torchopenl3_output[i].swapaxes(1, 2).swapaxes(2, 3).shape}"
                     )
                 else:
-                    print(
-                        f"{i} {openl3_output[i].shape} {torchopenl3_output[i].shape}"
-                    )
+                    print(f"{i} {openl3_output[i].shape} {torchopenl3_output[i].shape}")
             else:
                 print(f"{i} {openl3_output[i].shape}")
         for i in range(len(torchopenl3_output)):
             if i != len(torchopenl3_output) - 1:
-                torcho = (
-                    torchopenl3_output[i]
-                    .swapaxes(1, 2)
-                    .swapaxes(2, 3)
-                    .clone()
-                )
+                torcho = torchopenl3_output[i].swapaxes(1, 2).swapaxes(2, 3).clone()
             else:
                 torcho = torchopenl3_output[i]
             torcho = torcho.detach().numpy()

@@ -23,9 +23,7 @@ weight_files = [
     for tup in product(input_reprs, content_type)
 ]
 
-base_url = (
-    "https://raw.githubusercontent.com/turian/openl3_numpy_weights/main/"
-)
+base_url = "https://raw.githubusercontent.com/turian/openl3_numpy_weights/main/"
 for weight_file in weight_files:
     weight_path = os.path.join(module_dir, weight_file)
     if not os.path.isfile(weight_path):
@@ -68,7 +66,9 @@ setup(
     author="Joseph Turian and Gyanendra Das",
     author_email="gyanendra.19je0343@am.iitism.ac.in",
     packages=find_packages(),
-    entry_points={"console_scripts": ["torchopenl3=torchopenl3.cli:main"],},
+    entry_points={
+        "console_scripts": ["torchopenl3=torchopenl3.cli:main"],
+    },
     license="MIT",
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -119,7 +119,6 @@ setup(
         ],
     },
     package_data={
-        "torchopenl3": weight_files
-        + ["mel128_weights.npy", "mel256_weights.npy"]
+        "torchopenl3": weight_files + ["mel128_weights.npy", "mel256_weights.npy"]
     },
 )
