@@ -129,6 +129,8 @@ def get_audio_embedding(
         audio = T(audio, device=device, dtype=torch.float64)
     if isinstance(audio, torch.Tensor):
         # nsounds x nsamples (x nchannels)
+        if audio.ndim == 1:
+            audio = audio.view(1, -1)
         assert audio.ndim == 2 or audio.ndim == 3
         nsounds = audio.shape[0]
         if audio.is_cuda:
@@ -357,7 +359,7 @@ def process_audio_file(
             for fpath, embedding, ts in zip(
                 batch_filepath_list, embedding_list, ts_list
             ):
-                embedding, ts = embedding(embedding, ts)
+                embedding, ts = to_numpy(embedding), to_numpy(ts)
                 output_path = get_output_path(
                     fpath, suffix + ".npz", output_dir=output_dir
                 )
