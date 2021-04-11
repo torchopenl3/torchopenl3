@@ -56,7 +56,10 @@ class TestRegression:
         for i in range(n):
             assert embeddings1[0].shape == embeddings0[0].shape
             assert embeddings1[1].shape == embeddings0[1].shape
-            assert torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings0[i]))) <= 1e-6
+            assert (
+                torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings0[i])))
+                <= 1e-6
+            )
             assert torch.mean(torch.abs(T(ts1[i]) - T(ts0[i]))) <= 1e-6
         embeddings2, ts2 = torchopenl3.get_audio_embedding(
             audios, srs, batch_size=32, sampler="resampy", **modelparams
@@ -69,11 +72,16 @@ class TestRegression:
             print(embeddings1[0].shape, embeddings2[0].shape)
             print(embeddings1[1].shape, embeddings2[1].shape)
             print(torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))))
-            print(torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i]))))
+            print(
+                torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i])))
+            )
             print(torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))))
             assert embeddings1[0].shape == embeddings2[0].shape
             assert embeddings1[1].shape == embeddings2[1].shape
-            assert torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i]))) <= 1e-2
+            assert (
+                torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i])))
+                <= 1e-2
+            )
             assert torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))) <= 1e-6
 
     def _test_regression(self, **kwargs):
@@ -87,7 +95,9 @@ class TestRegression:
 
             modelparamlist = [
                 dict(zip(CHECK_AUDIO_MODEL_PARAMS.keys(), p), **kwargs)
-                for p in itertools.product(*list(CHECK_AUDIO_MODEL_PARAMS.values()))
+                for p in itertools.product(
+                    *list(CHECK_AUDIO_MODEL_PARAMS.values())
+                )
             ]
             for modelparams in tqdm(modelparamlist):
                 self.check_model_for_regression(modelparams, filenames)

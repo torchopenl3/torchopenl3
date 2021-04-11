@@ -28,7 +28,9 @@ def pad_audio(audio, frame_len, hop_len):
     return audio
 
 
-def preprocess_audio_batch(audio, sr, center=True, hop_size=0.1, sampler="julian"):
+def preprocess_audio_batch(
+    audio, sr, center=True, hop_size=0.1, sampler="julian"
+):
     if audio.ndim == 3:
         audio = torch.mean(audio, axis=2)
 
@@ -62,7 +64,9 @@ def preprocess_audio_batch(audio, sr, center=True, hop_size=0.1, sampler="julian
     xframes_shape = None
     for i in range(audio.shape[0]):
         xframes = (
-            torch.as_strided(audio[i], size=(frame_len, n_frames), stride=(1, hop_len),)
+            torch.as_strided(
+                audio[i], size=(frame_len, n_frames), stride=(1, hop_len),
+            )
             .transpose(0, 1)
             .unsqueeze(1)
         )

@@ -221,7 +221,9 @@ def test_get_audio_embedding():
     assert not np.any(np.isnan(emb1))
 
     # Make sure we can load a model and pass it in
-    model = torchopenl3.models.load_audio_embedding_model("linear", "env", 512)
+    model = torchopenl3.models.load_audio_embedding_model(
+        "linear", "env", 512
+    )
     emb1load, ts1load = torchopenl3.get_audio_embedding(
         audio, sr, model=model, center=True, hop_size=hop_size, verbose=True
     )
@@ -254,11 +256,13 @@ def test_get_audio_embedding():
     emb6, _ = torchopenl3.get_audio_embedding(
         audio, sr, model=model, center=True, hop_size=hop_size, verbose=True
     )
-    n_frames = 1 + int((audio.shape[0] + sr // 2 - sr) / float(int(hop_size * sr)))
+    n_frames = 1 + int(
+        (audio.shape[0] + sr // 2 - sr) / float(int(hop_size * sr))
+    )
     assert emb6.shape[0] == n_frames
 
     emb7, _ = torchopenl3.get_audio_embedding(
-        audio, sr, model=model, center=False, hop_size=hop_size, verbose=True
+        audio, sr, model=model, center=False, hop_size=hop_size, verbose=True,
     )
     n_frames = 1 + int((audio.shape[0] - sr) / float(int(hop_size * sr)))
     assert emb7.shape[0] == n_frames
@@ -266,7 +270,7 @@ def test_get_audio_embedding():
     # Check for hop size
     hop_size = 0.2
     emb8, _ = torchopenl3.get_audio_embedding(
-        audio, sr, model=model, center=False, hop_size=hop_size, verbose=True
+        audio, sr, model=model, center=False, hop_size=hop_size, verbose=True,
     )
     n_frames = 1 + int((audio.shape[0] - sr) / float(int(hop_size * sr)))
     assert emb8.shape[0] == n_frames
@@ -275,9 +279,16 @@ def test_get_audio_embedding():
     audio, sr = sf.read(CHIRP_MONO_PATH)
     hop_size = 0.1
     emb_list, ts_list = torchopenl3.get_audio_embedding(
-        [audio, audio], sr, model=model, center=True, hop_size=hop_size, batch_size=4
+        [audio, audio],
+        sr,
+        model=model,
+        center=True,
+        hop_size=hop_size,
+        batch_size=4,
     )
-    n_frames = 1 + int((audio.shape[0] + sr // 2 - sr) / float(int(hop_size * sr)))
+    n_frames = 1 + int(
+        (audio.shape[0] + sr // 2 - sr) / float(int(hop_size * sr))
+    )
     assert len(emb_list) == 2
     assert len(ts_list) == 2
     assert emb_list[0].shape[0] == n_frames
@@ -293,7 +304,9 @@ def test_get_audio_embedding():
         hop_size=hop_size,
         batch_size=4,
     )
-    n_frames = 1 + int((audio.shape[0] + sr // 2 - sr) / float(int(hop_size * sr)))
+    n_frames = 1 + int(
+        (audio.shape[0] + sr // 2 - sr) / float(int(hop_size * sr))
+    )
     assert type(emb_list) == list
     assert type(ts_list) == list
     assert len(emb_list) == 2
@@ -311,7 +324,9 @@ def test_get_audio_embedding():
         hop_size=hop_size,
         batch_size=4,
     )
-    n_frames = 1 + int((audio.shape[0] + sr // 2 - sr) / float(int(hop_size * sr)))
+    n_frames = 1 + int(
+        (audio.shape[0] + sr // 2 - sr) / float(int(hop_size * sr))
+    )
     n_frames_2 = 1 + int(
         (audio.shape[0] + sr // 4 - sr / 2) / float(int(hop_size * sr / 2))
     )

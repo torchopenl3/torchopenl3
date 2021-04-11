@@ -22,7 +22,9 @@ TARGET_SR = 48000
 def get_model_path(input_repr, content_type, embedding_size):
     return os.path.join(
         os.path.dirname(__file__),
-        "torchopenl3_{}_{}_{}.pth".format(input_repr, content_type, embedding_size),
+        "torchopenl3_{}_{}_{}.pth".format(
+            input_repr, content_type, embedding_size
+        ),
     )
 
 
@@ -39,7 +41,9 @@ def load_audio_embedding_model(
     input_repr, content_type, embedding_size,
 ):
     model = PytorchOpenl3(
-        input_repr=input_repr, embedding_size=embedding_size, content_type=content_type
+        input_repr=input_repr,
+        embedding_size=embedding_size,
+        content_type=content_type,
     )
     try:
         weight_path = get_model_path(input_repr, content_type, embedding_size)
@@ -48,14 +52,18 @@ def load_audio_embedding_model(
         wd = os.path.split(os.path.normcase(__file__))[0]
         # 6144 and 512 weights are the same
         npweights = load_np_weights(
-            os.path.join(wd, f"openl3_{input_repr}_{content_type}_layer_weights.pkl",)
+            os.path.join(
+                wd, f"openl3_{input_repr}_{content_type}_layer_weights.pkl",
+            )
         )
 
         def update_batch_norm(layer, name):
             layer.state_dict()["weight"].copy_(
                 torch.from_numpy(npweights[name]["scale"])
             )
-            layer.state_dict()["bias"].copy_(torch.from_numpy(npweights[name]["bias"]))
+            layer.state_dict()["bias"].copy_(
+                torch.from_numpy(npweights[name]["bias"])
+            )
             layer.state_dict()["running_mean"].copy_(
                 torch.from_numpy(npweights[name]["mean"])
             )
@@ -63,20 +71,38 @@ def load_audio_embedding_model(
                 torch.from_numpy(npweights[name]["var"])
             )
 
-        update_batch_norm(model.batch_normalization_1, "batch_normalization_1")
-        update_batch_norm(model.batch_normalization_2, "batch_normalization_2")
-        update_batch_norm(model.batch_normalization_3, "batch_normalization_3")
-        update_batch_norm(model.batch_normalization_4, "batch_normalization_4")
-        update_batch_norm(model.batch_normalization_5, "batch_normalization_5")
-        update_batch_norm(model.batch_normalization_6, "batch_normalization_6")
-        update_batch_norm(model.batch_normalization_7, "batch_normalization_7")
-        update_batch_norm(model.batch_normalization_8, "batch_normalization_8")
+        update_batch_norm(
+            model.batch_normalization_1, "batch_normalization_1"
+        )
+        update_batch_norm(
+            model.batch_normalization_2, "batch_normalization_2"
+        )
+        update_batch_norm(
+            model.batch_normalization_3, "batch_normalization_3"
+        )
+        update_batch_norm(
+            model.batch_normalization_4, "batch_normalization_4"
+        )
+        update_batch_norm(
+            model.batch_normalization_5, "batch_normalization_5"
+        )
+        update_batch_norm(
+            model.batch_normalization_6, "batch_normalization_6"
+        )
+        update_batch_norm(
+            model.batch_normalization_7, "batch_normalization_7"
+        )
+        update_batch_norm(
+            model.batch_normalization_8, "batch_normalization_8"
+        )
 
         def update_conv(layer, name):
             layer.state_dict()["weight"].copy_(
                 torch.from_numpy(npweights[name]["weights"])
             )
-            layer.state_dict()["bias"].copy_(torch.from_numpy(npweights[name]["bias"]))
+            layer.state_dict()["bias"].copy_(
+                torch.from_numpy(npweights[name]["bias"])
+            )
 
         update_conv(model.conv2d_1, "conv2d_1")
         update_conv(model.conv2d_2, "conv2d_2")
@@ -92,7 +118,8 @@ def load_audio_embedding_model(
                 torch.from_numpy(
                     np.load(
                         os.path.join(
-                            os.path.dirname(__file__), f"{input_repr}_weights.npy"
+                            os.path.dirname(__file__),
+                            f"{input_repr}_weights.npy",
                         )
                     ).T
                 )
@@ -117,7 +144,9 @@ def get_audio_embedding(
     sampler="resampy",
 ):
     if model is None:
-        model = load_audio_embedding_model(input_repr, content_type, embedding_size)
+        model = load_audio_embedding_model(
+            input_repr, content_type, embedding_size
+        )
 
     if torch.cuda.is_available():
         # Won't work with multigpu
@@ -131,13 +160,15 @@ def get_audio_embedding(
         # nsounds x nsamples (x nchannels)
         if audio.ndim == 1:
             audio = audio.view(1, -1)
+        elif audio.ndim == 2:
+            audio = audio.view(1, audio.shape[0], audio.shape[1])
         assert audio.ndim == 2 or audio.ndim == 3
         nsounds = audio.shape[0]
         if audio.is_cuda:
             model = model.cuda()
-        audio = preprocess_audio_batch(audio, sr, center, hop_size, sampler=sampler).to(
-            torch.float32
-        )
+        audio = preprocess_audio_batch(
+            audio, sr, center, hop_size, sampler=sampler
+        ).to(torch.float32)
         total_size = audio.size()[0]
         audio_embedding = []
         with torch.set_grad_enabled(False):
@@ -148,8 +179,12 @@ def get_audio_embedding(
                     audio_embedding.append(model(small_batch))
         audio_embedding = torch.vstack(audio_embedding)
         # This is broken, doesn't use hop-size or center
-        ts_list = torch.arange(audio_embedding.size()[0] // nsounds) * hop_size
-        ts_list = ts_list.expand(nsounds, audio_embedding.size()[0] // nsounds)
+        ts_list = (
+            torch.arange(audio_embedding.size()[0] // nsounds) * hop_size
+        )
+        ts_list = ts_list.expand(
+            nsounds, audio_embedding.size()[0] // nsounds
+        )
 
         if audio.is_cuda:
             ts_list = ts_list.cuda()
@@ -158,7 +193,9 @@ def get_audio_embedding(
         assert ts_list.shape[0] % nsounds == 0
         # return nsounds x nframes x ndim
         return (
-            audio_embedding.view(nsounds, audio_embedding.shape[0] // nsounds, -1),
+            audio_embedding.view(
+                nsounds, audio_embedding.shape[0] // nsounds, -1
+            ),
             ts_list,
         )
     elif isinstance(audio, list):
@@ -300,7 +337,9 @@ def process_audio_file(
 
     # Load model
     if not model:
-        model = load_audio_embedding_model(input_repr, content_type, embedding_size)
+        model = load_audio_embedding_model(
+            input_repr, content_type, embedding_size
+        )
 
     audio_list = []
     sr_list = []
@@ -311,7 +350,9 @@ def process_audio_file(
     num_files = len(filepath_list)
     for file_idx, filepath in enumerate(filepath_list):
         if not os.path.exists(filepath):
-            raise TorchOpenL3Error('File "{}" could not be found.'.format(filepath))
+            raise TorchOpenL3Error(
+                'File "{}" could not be found.'.format(filepath)
+            )
 
         if verbose:
             print(
@@ -321,7 +362,9 @@ def process_audio_file(
             )
 
         # Skip if overwriting isn't enabled and output file exists
-        output_path = get_output_path(filepath, suffix + ".npz", output_dir=output_dir)
+        output_path = get_output_path(
+            filepath, suffix + ".npz", output_dir=output_dir
+        )
         if os.path.exists(output_path) and not overwrite:
             err_msg = "torchopenl3: {} exists and overwriting not enabled, skipping."
             print(err_msg.format(output_path))
@@ -331,7 +374,9 @@ def process_audio_file(
             audio, sr = sf.read(filepath)
         except Exception:
             err_msg = 'Could not open file "{}":\n{}'
-            raise TorchOpenL3Error(err_msg.format(filepath, traceback.format_exc()))
+            raise TorchOpenL3Error(
+                err_msg.format(filepath, traceback.format_exc())
+            )
 
         audio_list.append(audio)
         sr_list.append(sr)
@@ -340,7 +385,9 @@ def process_audio_file(
         audio_length = ceil(audio.shape[0] / float(TARGET_SR / sr))
         frame_length = TARGET_SR
         hop_length = int(hop_size * TARGET_SR)
-        num_windows = _get_num_windows(audio_length, frame_length, hop_length, center)
+        num_windows = _get_num_windows(
+            audio_length, frame_length, hop_length, center
+        )
         total_batch_size += num_windows
 
         if total_batch_size >= batch_size or file_idx == (num_files - 1):

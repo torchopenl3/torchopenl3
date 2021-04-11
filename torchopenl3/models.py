@@ -104,8 +104,12 @@ class CustomSTFT(nn.Module):
         # prepare DFT filters
         timesteps = np.array(range(n_dft))
         w_ks = np.arange(nb_filter) * 2 * np.pi / float(n_dft)
-        dft_real_kernels = np.cos(w_ks.reshape(-1, 1) * timesteps.reshape(1, -1))
-        dft_imag_kernels = -np.sin(w_ks.reshape(-1, 1) * timesteps.reshape(1, -1))
+        dft_real_kernels = np.cos(
+            w_ks.reshape(-1, 1) * timesteps.reshape(1, -1)
+        )
+        dft_imag_kernels = -np.sin(
+            w_ks.reshape(-1, 1) * timesteps.reshape(1, -1)
+        )
 
         # windowing DFT filters
         dft_window = librosa.filters.get_window(
@@ -133,7 +137,9 @@ class CustomSTFT(nn.Module):
         """
 
         log_spec = (
-            10 * torch.log(torch.clamp(x, min=amin)) / np.log(10).astype(np.float32)
+            10
+            * torch.log(torch.clamp(x, min=amin))
+            / np.log(10).astype(np.float32)
         )
         if x.ndim > 1:
             axis = tuple(range(x.ndim)[1:])
@@ -198,7 +204,13 @@ class CustomMelSTFT(CustomSTFT):
         self.return_decibel_melgram = return_decibel_melgram
 
         mel_basis = librosa.filters.mel(
-            sr=sr, n_fft=n_dft, n_mels=n_mels, fmin=0, fmax=sr // 2, htk=htk, norm=1,
+            sr=sr,
+            n_fft=n_dft,
+            n_mels=n_mels,
+            fmin=0,
+            fmax=sr // 2,
+            htk=htk,
+            norm=1,
         )
         self.register_buffer("mel_basis", T(mel_basis, requires_grad=False))
 
@@ -213,7 +225,9 @@ class CustomMelSTFT(CustomSTFT):
             x = self.custom_pad(x)
 
         output = super().forward(x)
-        output = torch.matmul(self.mel_basis, output.squeeze(-1)).unsqueeze(-1)
+        output = torch.matmul(self.mel_basis, output.squeeze(-1)).unsqueeze(
+            -1
+        )
 
         if self.power_melgram != 2.0:
             output = torch.pow(torch.sqrt(output), self.power_melgram)
@@ -288,7 +302,11 @@ class PytorchOpenl3(nn.Module):
         self.input_repr = input_repr
         self.embedding_size = embedding_size
         self.batch_normalization_1 = self.__batch_normalization(
-            2, "batch_normalization_1", num_features=1, eps=0.001, momentum=0.99,
+            2,
+            "batch_normalization_1",
+            num_features=1,
+            eps=0.001,
+            momentum=0.99,
         )
         self.conv2d_1 = self.__conv(
             2,
@@ -301,7 +319,11 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
         self.batch_normalization_2 = self.__batch_normalization(
-            2, "batch_normalization_2", num_features=64, eps=0.001, momentum=0.99,
+            2,
+            "batch_normalization_2",
+            num_features=64,
+            eps=0.001,
+            momentum=0.99,
         )
         self.conv2d_2 = self.__conv(
             2,
@@ -314,7 +336,11 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
         self.batch_normalization_3 = self.__batch_normalization(
-            2, "batch_normalization_3", num_features=64, eps=0.001, momentum=0.99,
+            2,
+            "batch_normalization_3",
+            num_features=64,
+            eps=0.001,
+            momentum=0.99,
         )
         self.conv2d_3 = self.__conv(
             2,
@@ -327,7 +353,11 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
         self.batch_normalization_4 = self.__batch_normalization(
-            2, "batch_normalization_4", num_features=128, eps=0.001, momentum=0.99,
+            2,
+            "batch_normalization_4",
+            num_features=128,
+            eps=0.001,
+            momentum=0.99,
         )
         self.conv2d_4 = self.__conv(
             2,
@@ -340,7 +370,11 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
         self.batch_normalization_5 = self.__batch_normalization(
-            2, "batch_normalization_5", num_features=128, eps=0.001, momentum=0.99,
+            2,
+            "batch_normalization_5",
+            num_features=128,
+            eps=0.001,
+            momentum=0.99,
         )
         self.conv2d_5 = self.__conv(
             2,
@@ -353,7 +387,11 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
         self.batch_normalization_6 = self.__batch_normalization(
-            2, "batch_normalization_6", num_features=256, eps=0.001, momentum=0.99,
+            2,
+            "batch_normalization_6",
+            num_features=256,
+            eps=0.001,
+            momentum=0.99,
         )
         self.conv2d_6 = self.__conv(
             2,
@@ -366,7 +404,11 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
         self.batch_normalization_7 = self.__batch_normalization(
-            2, "batch_normalization_7", num_features=256, eps=0.001, momentum=0.99,
+            2,
+            "batch_normalization_7",
+            num_features=256,
+            eps=0.001,
+            momentum=0.99,
         )
         self.conv2d_7 = self.__conv(
             2,
@@ -379,7 +421,11 @@ class PytorchOpenl3(nn.Module):
             bias=True,
         )
         self.batch_normalization_8 = self.__batch_normalization(
-            2, "batch_normalization_8", num_features=512, eps=0.001, momentum=0.99,
+            2,
+            "batch_normalization_8",
+            num_features=512,
+            eps=0.001,
+            momentum=0.99,
         )
         self.audio_embedding_layer = self.__conv(
             2,
@@ -423,7 +469,11 @@ class PytorchOpenl3(nn.Module):
         if keep_all_outputs:
             all_outputs.append(activation_2)
         max_pooling2d_1 = F.max_pool2d(
-            activation_2, kernel_size=(2, 2), stride=(2, 2), padding=0, ceil_mode=False,
+            activation_2,
+            kernel_size=(2, 2),
+            stride=(2, 2),
+            padding=0,
+            ceil_mode=False,
         )
         if keep_all_outputs:
             all_outputs.append(max_pooling2d_1)
@@ -448,7 +498,11 @@ class PytorchOpenl3(nn.Module):
         if keep_all_outputs:
             all_outputs.append(activation_4)
         max_pooling2d_2 = F.max_pool2d(
-            activation_4, kernel_size=(2, 2), stride=(2, 2), padding=0, ceil_mode=False,
+            activation_4,
+            kernel_size=(2, 2),
+            stride=(2, 2),
+            padding=0,
+            ceil_mode=False,
         )
         if keep_all_outputs:
             all_outputs.append(max_pooling2d_2)
@@ -473,7 +527,11 @@ class PytorchOpenl3(nn.Module):
         if keep_all_outputs:
             all_outputs.append(activation_6)
         max_pooling2d_3 = F.max_pool2d(
-            activation_6, kernel_size=(2, 2), stride=(2, 2), padding=0, ceil_mode=False,
+            activation_6,
+            kernel_size=(2, 2),
+            stride=(2, 2),
+            padding=0,
+            ceil_mode=False,
         )
         if keep_all_outputs:
             all_outputs.append(max_pooling2d_3)
@@ -488,13 +546,19 @@ class PytorchOpenl3(nn.Module):
         if keep_all_outputs:
             all_outputs.append(activation_7)
         audio_embedding_layer_pad = F.pad(activation_7, (1, 1, 1, 1))
-        audio_embedding_layer = self.audio_embedding_layer(audio_embedding_layer_pad)
+        audio_embedding_layer = self.audio_embedding_layer(
+            audio_embedding_layer_pad
+        )
         if keep_all_outputs:
             all_outputs.append(audio_embedding_layer)
         max_pooling2d_4 = F.max_pool2d(
             audio_embedding_layer,
-            kernel_size=self.AUDIO_POOLING_SIZES[self.input_repr][self.embedding_size],
-            stride=self.AUDIO_POOLING_SIZES[self.input_repr][self.embedding_size],
+            kernel_size=self.AUDIO_POOLING_SIZES[self.input_repr][
+                self.embedding_size
+            ],
+            stride=self.AUDIO_POOLING_SIZES[self.input_repr][
+                self.embedding_size
+            ],
             padding=0,
             ceil_mode=False,
         )
