@@ -235,8 +235,8 @@ def test_get_audio_embedding():
         audio, sr, model=model, center=True, hop_size=0.1, verbose=True
     )
     emb2 = to_numpy(emb2)
-    # assert np.all(np.abs(emb1 - emb2) < tol)
-    # assert np.all(np.abs(ts1 - ts2) < tol)
+    assert np.all(np.abs(emb1 - emb2) < tol)
+    assert np.all(np.abs(ts1 - ts2) < tol)
     assert not np.any(np.isnan(emb2))
 
     # Make sure that the embeddings are approximately the same if we resample the audio
@@ -245,8 +245,8 @@ def test_get_audio_embedding():
         audio, sr, model=model, center=True, hop_size=0.1, verbose=True
     )
     emb3 = to_numpy(emb3)
-    # assert np.all(np.abs(emb1 - emb3) < tol)
-    # assert np.all(np.abs(ts1 - ts3) < tol)
+    assert np.all(np.abs(emb1 - emb3) < tol)
+    assert np.all(np.abs(ts1 - ts3) < tol)
     assert not np.any(np.isnan(emb3))
 
     # Check for centering

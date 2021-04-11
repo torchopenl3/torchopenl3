@@ -50,6 +50,7 @@ class TestRegression:
         embeddings1, ts1 = openl3.get_audio_embedding(
             audios, srs, batch_size=32, **modelparams
         )
+
         # This is just a sanity check that openl3
         # gives consistent results, we can remove
         # it later.

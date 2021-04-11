@@ -548,6 +548,7 @@ class PytorchOpenl3(nn.Module):
             padding=0,
             ceil_mode=False,
         )
+
         if keep_all_outputs:
             all_outputs.append(max_pooling2d_4)
         # Might just use view ?

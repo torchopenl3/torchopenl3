@@ -117,7 +117,8 @@ def test_main():
 
     tempdir = tempfile.mkdtemp()
     with patch(
-        "sys.argv", ["torchopenl3", CHIRP_44K_PATH, "--output-dir", tempdir],
+        "sys.argv",
+        ["torchopenl3", CHIRP_44K_PATH, "--output-dir", tempdir],
     ):
         main()
 
@@ -143,7 +144,8 @@ def test_script_main():
     # Duplicate audio regression test from test_run just to hit coverage
     tempdir = tempfile.mkdtemp()
     with patch(
-        "sys.argv", ["torchopenl3", CHIRP_44K_PATH, "--output-dir", tempdir],
+        "sys.argv",
+        ["torchopenl3", CHIRP_44K_PATH, "--output-dir", tempdir],
     ):
         import torchopenl3.__main__
 
