@@ -66,9 +66,7 @@ setup(
     author="Joseph Turian and Gyanendra Das",
     author_email="gyanendra.19je0343@am.iitism.ac.in",
     packages=find_packages(),
-    entry_points={
-        "console_scripts": ["torchopenl3=torchopenl3.cli:main"],
-    },
+    entry_points={"console_scripts": ["torchopenl3=torchopenl3.cli:main"],},
     license="MIT",
     classifiers=[
         "Development Status :: 3 - Alpha",

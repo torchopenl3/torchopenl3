@@ -14,12 +14,7 @@ from tqdm.auto import tqdm
 
 import torchopenl3
 
-PARAMS = OrderedDict(
-    {
-        "center": [True, False],
-        "hop_size": [0.1, 0.2718, 0.5],
-    }
-)
+PARAMS = OrderedDict({"center": [True, False], "hop_size": [0.1, 0.2718, 0.5],})
 paramlist = [
     dict(zip(PARAMS.keys(), p)) for p in itertools.product(*list(PARAMS.values()))
 ]
