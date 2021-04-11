@@ -14,6 +14,7 @@ except ImportError:
 module_dir = "torchopenl3"
 input_reprs = ["linear", "mel128", "mel256"]
 content_type = ["music", "env"]
+
 # weight_files = [
 #    "openl3_{}_{}_layer_weights".format(*tup)
 #    for tup in product(input_reprs, content_type)

@@ -28,18 +28,6 @@ def pad_audio(audio, frame_len, hop_len):
     return audio
 
 
-def get_num_windows(audio_len, frame_len, hop_len, center):
-    if center:
-        audio_len += int(frame_len / 2.0)
-
-    if audio_len <= frame_len:
-        return 1
-    else:
-        return (
-            1 + torch.ceil(torch.tensor((audio_len - frame_len) / float(hop_len))).int()
-        )
-
-
 def preprocess_audio_batch(audio, sr, center=True, hop_size=0.1, sampler="julian"):
     if audio.ndim == 3:
         audio = torch.mean(audio, axis=2)
