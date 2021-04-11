@@ -139,7 +139,7 @@ def get_audio_embedding(
         # nsounds x nsamples (x nchannels)
         if audio.ndim == 1:
             audio = audio.view(1, -1)
-        elif audio.ndim == 2:
+        elif audio.ndim == 2 and audio.shape[1] == 2:
             audio = audio.view(1, audio.shape[0], audio.shape[1])
         assert audio.ndim == 2 or audio.ndim == 3
         nsounds = audio.shape[0]
