@@ -26,7 +26,7 @@ def to_numpy(a):
     else:
         try:
             a = a.numpy()
-        except:
+        except Exception:
             a = a.detach().numpy()
         return a
 
@@ -50,7 +50,7 @@ def test_get_audio_embedding():
 
     emb1, ts1 = to_numpy(emb1), to_numpy(ts1)
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 512
+    assert emb1.shape[-1] == 512
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = torchopenl3.get_audio_embedding(
@@ -66,7 +66,7 @@ def test_get_audio_embedding():
 
     emb1, ts1 = to_numpy(emb1), to_numpy(ts1)
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 6144
+    assert emb1.shape[-1] == 6144
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = torchopenl3.get_audio_embedding(
@@ -81,7 +81,7 @@ def test_get_audio_embedding():
     )
     emb1, ts1 = to_numpy(emb1), to_numpy(ts1)
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 512
+    assert emb1.shape[-1] == 512
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = torchopenl3.get_audio_embedding(
@@ -96,7 +96,7 @@ def test_get_audio_embedding():
     )
     emb1, ts1 = to_numpy(emb1), to_numpy(ts1)
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 6144
+    assert emb1.shape[-1] == 6144
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = torchopenl3.get_audio_embedding(
@@ -111,7 +111,7 @@ def test_get_audio_embedding():
     )
     emb1, ts1 = to_numpy(emb1), to_numpy(ts1)
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 512
+    assert emb1.shape[-1] == 512
     assert not np.any(np.isnan(emb1))
 
     audio, sr = sf.read(CHIRP_MONO_PATH)
@@ -127,7 +127,7 @@ def test_get_audio_embedding():
     )
     emb1, ts1 = to_numpy(emb1), to_numpy(ts1)
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 6144
+    assert emb1.shape[-1] == 6144
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = torchopenl3.get_audio_embedding(
@@ -142,7 +142,7 @@ def test_get_audio_embedding():
     )
     emb1, ts1 = to_numpy(emb1), to_numpy(ts1)
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 512
+    assert emb1.shape[-1] == 512
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = torchopenl3.get_audio_embedding(
@@ -157,7 +157,7 @@ def test_get_audio_embedding():
     )
     emb1, ts1 = to_numpy(emb1), to_numpy(ts1)
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 6144
+    assert emb1.shape[-1] == 6144
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = torchopenl3.get_audio_embedding(
@@ -172,7 +172,7 @@ def test_get_audio_embedding():
     )
     emb1, ts1 = to_numpy(emb1), to_numpy(ts1)
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 512
+    assert emb1.shape[-1] == 512
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = torchopenl3.get_audio_embedding(
@@ -187,7 +187,7 @@ def test_get_audio_embedding():
     )
     emb1, ts1 = to_numpy(emb1), to_numpy(ts1)
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 6144
+    assert emb1.shape[-1] == 6144
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = torchopenl3.get_audio_embedding(
@@ -202,7 +202,7 @@ def test_get_audio_embedding():
     )
     emb1, ts1 = to_numpy(emb1), to_numpy(ts1)
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 6144
+    assert emb1.shape[-1] == 6144
     assert not np.any(np.isnan(emb1))
 
     emb1, ts1 = torchopenl3.get_audio_embedding(
@@ -217,7 +217,7 @@ def test_get_audio_embedding():
     )
     emb1, ts1 = to_numpy(emb1), to_numpy(ts1)
     assert np.all(np.abs(np.diff(ts1) - hop_size) < tol)
-    assert emb1.shape[1] == 512
+    assert emb1.shape[-1] == 512
     assert not np.any(np.isnan(emb1))
 
     # Make sure we can load a model and pass it in

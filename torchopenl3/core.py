@@ -114,7 +114,7 @@ def get_audio_embedding(
     batch_size=32,
     verbose=True,
     weight_path="",
-    sampler="julian",
+    sampler="resampy",
 ):
     if model is None:
         model = load_audio_embedding_model(input_repr, content_type, embedding_size)
@@ -382,7 +382,7 @@ def to_numpy(a):
     else:
         try:
             a = a.numpy()
-        except:
+        except Exception:
             a = a.detach().numpy()
         return a
 
