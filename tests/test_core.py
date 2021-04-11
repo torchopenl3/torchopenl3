@@ -231,20 +231,20 @@ def test_get_audio_embedding():
 
     # Make sure that the embeddings are approximately the same with mono and stereo
     audio, sr = sf.read(CHIRP_STEREO_PATH)
-    emb2, _ = torchopenl3.get_audio_embedding(
+    emb2, ts2 = torchopenl3.get_audio_embedding(
         audio, sr, model=model, center=True, hop_size=0.1, verbose=True
     )
-    emb2 = to_numpy(emb2)
+    emb2, ts2 = to_numpy(emb2), to_numpy(ts2)
     assert np.all(np.abs(emb1 - emb2) < tol)
     assert np.all(np.abs(ts1 - ts2) < tol)
     assert not np.any(np.isnan(emb2))
 
     # Make sure that the embeddings are approximately the same if we resample the audio
     audio, sr = sf.read(CHIRP_44K_PATH)
-    emb3, _ = torchopenl3.get_audio_embedding(
+    emb3, ts3 = torchopenl3.get_audio_embedding(
         audio, sr, model=model, center=True, hop_size=0.1, verbose=True
     )
-    emb3 = to_numpy(emb3)
+    emb3, ts3 = to_numpy(emb3), to_numpy(ts3)
     assert np.all(np.abs(emb1 - emb3) < tol)
     assert np.all(np.abs(ts1 - ts3) < tol)
     assert not np.any(np.isnan(emb3))
