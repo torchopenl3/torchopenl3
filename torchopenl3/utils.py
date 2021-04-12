@@ -38,7 +38,9 @@ def preprocess_audio_batch(audio, sr, center=True, hop_size=0.1, sampler="julian
             audio = julius.resample_frac(audio, sr, TARGET_SR)
 
         elif sampler == "resampy":
-            logging.warning("Watch out!")
+            logging.warning(
+                "To get accurate results we have to move the data the CPU to use resampy"
+            )
             audio = torch.tensor(
                 resampy.resample(
                     audio.detach().cpu().numpy(),
