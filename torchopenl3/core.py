@@ -22,17 +22,8 @@ TARGET_SR = 48000
 def get_model_path(input_repr, content_type, embedding_size):
     return os.path.join(
         os.path.dirname(__file__),
-        "torchopenl3_{}_{}_{}.pth".format(input_repr, content_type, embedding_size),
+        "torchopenl3_{}_{}_{}.pth.tar".format(input_repr, content_type, embedding_size),
     )
-
-
-def load_np_weights(weight_file):
-    weights_dict = np.load(weight_file, allow_pickle=True).item()
-    # try:
-    #    weights_dict = np.load(weight_file, allow_pickle=True).item()
-    # except:
-    #    weights_dict = np.load(weight_file, encoding="bytes", allow_pickle=True).item()
-    return weights_dict
 
 
 def load_audio_embedding_model(
@@ -45,67 +36,9 @@ def load_audio_embedding_model(
         embedding_size=embedding_size,
         content_type=content_type,
     )
-    try:
-        weight_path = get_model_path(input_repr, content_type, embedding_size)
-        model.load_state_dict(torch.load(weight_path))
-    except FileNotFoundError:
-        wd = os.path.split(os.path.normcase(__file__))[0]
-        # 6144 and 512 weights are the same
-        npweights = load_np_weights(
-            os.path.join(
-                wd,
-                f"openl3_{input_repr}_{content_type}_layer_weights.pkl",
-            )
-        )
 
-        def update_batch_norm(layer, name):
-            layer.state_dict()["weight"].copy_(
-                torch.from_numpy(npweights[name]["scale"])
-            )
-            layer.state_dict()["bias"].copy_(torch.from_numpy(npweights[name]["bias"]))
-            layer.state_dict()["running_mean"].copy_(
-                torch.from_numpy(npweights[name]["mean"])
-            )
-            layer.state_dict()["running_var"].copy_(
-                torch.from_numpy(npweights[name]["var"])
-            )
-
-        update_batch_norm(model.batch_normalization_1, "batch_normalization_1")
-        update_batch_norm(model.batch_normalization_2, "batch_normalization_2")
-        update_batch_norm(model.batch_normalization_3, "batch_normalization_3")
-        update_batch_norm(model.batch_normalization_4, "batch_normalization_4")
-        update_batch_norm(model.batch_normalization_5, "batch_normalization_5")
-        update_batch_norm(model.batch_normalization_6, "batch_normalization_6")
-        update_batch_norm(model.batch_normalization_7, "batch_normalization_7")
-        update_batch_norm(model.batch_normalization_8, "batch_normalization_8")
-
-        def update_conv(layer, name):
-            layer.state_dict()["weight"].copy_(
-                torch.from_numpy(npweights[name]["weights"])
-            )
-            layer.state_dict()["bias"].copy_(torch.from_numpy(npweights[name]["bias"]))
-
-        update_conv(model.conv2d_1, "conv2d_1")
-        update_conv(model.conv2d_2, "conv2d_2")
-        update_conv(model.conv2d_3, "conv2d_3")
-        update_conv(model.conv2d_4, "conv2d_4")
-        update_conv(model.conv2d_5, "conv2d_5")
-        update_conv(model.conv2d_6, "conv2d_6")
-        update_conv(model.conv2d_7, "conv2d_7")
-        update_conv(model.audio_embedding_layer, "audio_embedding_layer")
-
-        if input_repr != "linear":
-            model.speclayer.state_dict()["mel_basis"].copy_(
-                torch.from_numpy(
-                    np.load(
-                        os.path.join(
-                            os.path.dirname(__file__),
-                            f"{input_repr}_weights.npy",
-                        )
-                    ).T
-                )
-            )
-
+    weight_path = get_model_path(input_repr, content_type, embedding_size)
+    model.load_state_dict(torch.load(weight_path))
     model = model.eval()
     return model
 
