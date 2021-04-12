@@ -20,10 +20,8 @@ TARGET_SR = 48000
 
 
 def get_model_path(input_repr, content_type, embedding_size):
-    return os.path.join(
-        os.path.dirname(__file__),
-        "torchopenl3_{}_{}_{}.pth.tar".format(input_repr, content_type, embedding_size),
-    )
+    base_url = "https://github.com/Luckygyana/torchopenl3-models/raw/master/"
+    return f"{base_url}torchopenl3_{input_repr}_{content_type}_{embedding_size}.pth.tar"
 
 
 def load_audio_embedding_model(
@@ -38,7 +36,7 @@ def load_audio_embedding_model(
     )
 
     weight_path = get_model_path(input_repr, content_type, embedding_size)
-    model.load_state_dict(torch.load(weight_path))
+    model.load_state_dict(torch.hub.load_state_dict_from_url(weight_path))
     model = model.eval()
     return model
 
