@@ -74,7 +74,7 @@ class TestRegression:
             print(torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))))
             assert embeddings1[0].shape == embeddings2[0].shape
             assert embeddings1[1].shape == embeddings2[1].shape
-            assert torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i]))) <= 1e-2
+            assert torch.mean(torch.abs(T(embeddings1[i]) - T(embeddings2[i]))) <= 5e-3
             assert torch.mean(torch.abs(T(ts1[i]) - T(ts2[i]))) <= 1e-6
 
     def _test_regression(self, **kwargs):
