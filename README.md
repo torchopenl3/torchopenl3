@@ -1,72 +1,73 @@
-# torchopenl3
+# Torchopenl3
+TorchopenL3 is an open-source Python library Pytorch Support for computing deep audio embeddings.
 
-WARNING: Because of weird kapre 0.1.3 STFT implementation, only 'linear' models have low mean-absolute-error:
 
+[![PyPI](https://img.shields.io/badge/python-3.6%2C%203.7-blue.svg)](https://pypi.python.org/pypi/openl3) [![Build Status](https://travis-ci.org/turian/torchopenl3.png?branch=main)](https://travis-ci.org/turian/torchopenl3) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/turian/torchopenl3/pulse) [![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](https://GitHub.com/turian/torchopenl3) [![GitHub version](https://badge.fury.io/gh/turian%2Ftorchopenl3.svg)](https://github.com/turian/torchopenl3) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+## Contributors
+![GitHub Contributors Image](https://contrib.rocks/image?repo=turian/torchopenl3)
+
+Please refer to the [Openl3 Library](https://github.com/marl/openl3) for keras version.
+
+The audio and image embedding models provided here are published as part of [1], and are based on the Look, Listen and Learn approach [2]. For details about the embedding models and how they were trained, please see:
+
+[Look, Listen and Learn More: Design Choices for Deep Audio Embeddings](http://www.justinsalamon.com/uploads/4/3/9/4/4394963/cramer_looklistenlearnmore_icassp_2019.pdf)<br/>
+Jason Cramer, Ho-Hsiang Wu, Justin Salamon, and Juan Pablo Bello.<br/>
+IEEE Int. Conf. on Acoustics, Speech and Signal Processing (ICASSP), pages 3852–3856, Brighton, UK, May 2019.
+
+# Comparasion
+
+We run torchopenl3 over 100 audio files and compare with openl3 embeddings. Below is the MAE (Mean Absolute Error) Table
+
+
+| Content_type | Input_repr | Emd_size |           MAE          |
+|:------------:|:----------:|:--------:|:----------------------:|
+|      Env     |   Linear   |    512   | 1.1522600237867664e-06 |
+|      Env     |   Linear   |   6144   |  1.027089645617707e-06 |
+|      Env     |   Mel128   |    512   | 1.2094695046016568e-06 |
+|      Env     |   Mel128   |   6144   | 1.0968088741947213e-06 |
+|      Env     |   Mel256   |    512   | 1.1641358707947802e-06 |
+|      Env     |   Mel256   |   6144   | 1.0069775197507625e-06 |
+|     Music    |   Linear   |    512   |  1.173499645119591e-06 |
+|     Music    |   Linear   |   6144   |  1.048712784381678e-06 |
+|     Music    |   Mel128   |    512   | 1.1837427564387327e-06 |
+|     Music    |   Mel128   |   6144   | 1.0497348176841115e-06 |
+|     Music    |   Mel256   |    512   | 1.1619711483490392e-06 |
+|     Music    |   Mel256   |   6144   |  9.881532906774738e-07 |
+
+
+# Installation
+[![PyPI](https://img.shields.io/badge/python-3.6%2C%203.7-blue.svg)](https://pypi.python.org/pypi/openl3)  
+Install via pip 
 ```
-0.00027512445 27 {'content_type': 'env', 'input_repr': 'linear', 'embedding_size': 512}
-0.00035646933 27 {'content_type': 'music', 'input_repr': 'linear', 'embedding_size': 512}
-0.0004159477 27 {'content_type': 'env', 'input_repr': 'linear', 'embedding_size': 6144}
-0.00050214445 27 {'content_type': 'music', 'input_repr': 'linear', 'embedding_size': 6144}
-0.019344347 27 {'content_type': 'env', 'input_repr': 'mel128', 'embedding_size': 6144}
-0.021740034 27 {'content_type': 'env', 'input_repr': 'mel128', 'embedding_size': 512}
-0.025367895 27 {'content_type': 'music', 'input_repr': 'mel128', 'embedding_size': 6144}
-0.03770243 27 {'content_type': 'music', 'input_repr': 'mel128', 'embedding_size': 512}
-0.039656915 27 {'content_type': 'env', 'input_repr': 'mel256', 'embedding_size': 6144}
-0.05372108 27 {'content_type': 'music', 'input_repr': 'mel256', 'embedding_size': 6144}
-0.07465961 27 {'content_type': 'env', 'input_repr': 'mel256', 'embedding_size': 512}
-0.11598873 27 {'content_type': 'music', 'input_repr': 'mel256', 'embedding_size': 512}
+pip install git+https://github.com/turian/torchopenl3.git
 ```
-
-## Development$
-
-We want `pytest` to pass, specifically we want `tests/test_regression.py`
-to run to demonstrate that torchopenl3 API matches the original
-openl3 API.
-
-Here is what you need to do to get `pytest` running.
-
-Make sure you have pre-commit hooks installed:
-```
-pre-commit install
-```
-This helps us avoid checking dirty jupyter notebook cells into the
-repo.
-
 Install the package with all dev libraries (i.e. tensorflow openl3)
 ```
+git clone https://github.com/turian/torchopenl3.git
 pip3 install -e ".[dev]"
 ```
 
-If that doesn't work, you might need to first run:
-```
-pip3 install "Cython>=0.23.4"
-```
-
-If it works and you can run:
-```
-pytest
-```
-Then you can do regression testing of torchopenl3 API vs openl3..
-
-If that doesn't work (and it might not because openl3 has tricky
-requirements), install Docker and work within the Docker environment.
+Install Docker and work within the Docker environment.
 Unfortunately this Docker image is quite big (about 4 GB) because
-of pytorch AND tensorflow dependencies AND openl3 models, but you
-only need to download it once:
 
 ```
 docker pull turian/torchopenl3
 # Or, build the docker yourself
 #docker build -t turian/torchopenl3 .
-docker run --mount source=`pwd`,target=/home/openl3/,type=bind -it turian/torchopenl3 bash
 ```
 
-Inside docker, run:
-```
-pip3 install -e ".[dev]"
-pytest 2>&1 | less
-```
+# Using TorchpenL3
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1LHbM1WN_1LK61R6XEbUlrtmRb3fKlDov?usp=sharing) 
 
-If it says `killed`, increase Docker memory.
+To help you get started with TorchopenL3 please go through the colab file.
 
-If none of this works, ask for help.
+# Acknowledge
+
+[1] [Look, Listen and Learn More: Design Choices for Deep Audio Embeddings](http://www.justinsalamon.com/uploads/4/3/9/4/4394963/cramer\_looklistenlearnmore\_icassp\_2019.pdf)<br/>
+Jason Cramer, Ho-Hsiang Wu, Justin Salamon, and Juan Pablo Bello.<br/>
+IEEE Int. Conf. on Acoustics, Speech and Signal Processing (ICASSP), pages 3852–3856, Brighton, UK, May 2019.
+
+[2] [Look, Listen and Learn](http://openaccess.thecvf.com/content\_ICCV\_2017/papers/Arandjelovic\_Look\_Listen\_and\_ICCV\_2017\_paper.pdf)<br/>
+Relja Arandjelović and Andrew Zisserman<br/>
+IEEE International Conference on Computer Vision (ICCV), Venice, Italy, Oct. 2017.
