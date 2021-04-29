@@ -17,8 +17,8 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/turian/torchopenl3/",
-    author="Joseph Turian and Gyanendra Das",
-    author_email="gyanendra.19je0343@am.iitism.ac.in",
+    author="Humair Raj Khan and Gyanendra Das",
+    author_email="gyanendralucky9337@gmail.com",
     packages=find_packages(),
     entry_points={
         "console_scripts": ["torchopenl3=torchopenl3.cli:main"],

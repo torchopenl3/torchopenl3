@@ -63,6 +63,7 @@ docker pull turian/torchopenl3
 To help you get started with TorchopenL3 please go through the colab file.
 
 # Acknowledge
+Special Thank you to [Joseph Turian](https://github.com/turain) for his help
 
 [1] [Look, Listen and Learn More: Design Choices for Deep Audio Embeddings](http://www.justinsalamon.com/uploads/4/3/9/4/4394963/cramer\_looklistenlearnmore\_icassp\_2019.pdf)<br/>
 Jason Cramer, Ho-Hsiang Wu, Justin Salamon, and Juan Pablo Bello.<br/>
