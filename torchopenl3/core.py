@@ -10,7 +10,7 @@ import soundfile as sf
 import numpy as np
 
 import torch
-import torch.tensor as T
+from torch import tensor as T
 
 from .models import PytorchOpenl3
 from .utils import preprocess_audio_batch

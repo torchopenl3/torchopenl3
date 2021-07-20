@@ -11,7 +11,7 @@ import resampy
 import scipy.stats
 import soundfile as sf
 import torch
-import torch.tensor as T
+from torch import tensor as T
 import torchopenl3
 from keras import Input, Model
 from tqdm.auto import tqdm
