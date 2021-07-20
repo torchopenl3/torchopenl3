@@ -1,4 +1,4 @@
-# Torchopenl3 (changes for torch 1.9.0 by toborobot)
+# Torchopenl3
 TorchopenL3 is an open-source Python library Pytorch Support for computing deep audio embeddings.
 
 
