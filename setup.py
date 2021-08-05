@@ -16,17 +16,15 @@ setup(
     description="Deep audio and image embeddings, based on Look, Listen, and Learn approach Pytorch",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/turian/torchopenl3/",
+    url="https://github.com/torchopenl3/torchopenl3/",
     author="Humair Raj Khan and Gyanendra Das",
     author_email="gyanendralucky9337@gmail.com",
     packages=find_packages(),
-    entry_points={
-        "console_scripts": ["torchopenl3=torchopenl3.cli:main"],
-    },
+    entry_points={"console_scripts": ["torchopenl3=torchopenl3.cli:main"],},
     license="MIT",
     classifiers=[
         "Development Status :: 3 - Alpha",
-        "License :: OSI Approved :: Apache Software License v2.0",
+        "License :: OSI Approved :: Apache Software License",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
         "Topic :: Multimedia :: Sound/Audio :: Analysis",
@@ -39,8 +37,8 @@ setup(
         "resampy>=0.2.1,<0.3.0",
         #'scikit-image>=0.14.3,<0.15.0',
         "torch>=1.4.0",
-        "nnAudio",
-        "julius",
+        "nnAudio>=0.2.4",
+        "julius>=0.2.5",
     ],
     extras_require={
         "test": [
