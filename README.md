@@ -40,7 +40,7 @@ We run torchopenl3 over 100 audio files and compare with openl3 embeddings. Belo
 [![PyPI](https://img.shields.io/badge/python-3.6%2C%203.7-blue.svg)](https://pypi.python.org/pypi/openl3)  
 Install via pip 
 ```
-pip install git+https://github.com/turian/torchopenl3.git
+pip install torchopenl3
 ```
 Install the package with all dev libraries (i.e. tensorflow openl3)
 ```
