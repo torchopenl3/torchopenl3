@@ -1,19 +1,19 @@
 # Torchopenl3
-TorchopenL3 is an open-source Python library Pytorch Support for computing deep audio embeddings.
+Please cite the following TorchOpenL3 in your work:<br/>
+[1][Das, Gyanendra, Khan, Humair Raj, Turian, Joseph, Torchopenl3, (2021).](https://doi.org/10.5281/zenodo.5168808.)
 
+TorchopenL3 is an open-source Python library Pytorch Support for computing deep audio embeddings.<br/>
 [![DOI](https://zenodo.org/badge/347964280.svg)](https://zenodo.org/badge/latestdoi/347964280)
-[![PyPI](https://img.shields.io/badge/python-3.6%2C%203.7-blue.svg)](https://pypi.python.org/pypi/openl3) [![Build Status](https://travis-ci.org/turian/torchopenl3.png?branch=main)](https://travis-ci.org/turian/torchopenl3) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/turian/torchopenl3/pulse) [![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](https://GitHub.com/turian/torchopenl3) [![GitHub version](https://badge.fury.io/gh/turian%2Ftorchopenl3.svg)](https://github.com/turian/torchopenl3) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![PyPI](https://img.shields.io/badge/python-3.6%2C%203.7-blue.svg)](https://pypi.python.org/pypi/openl3) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/torchopenl3/torchopenl3/pulse) [![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](https://GitHub.com/torchopenl3/torchopenl3) [![GitHub version](https://badge.fury.io/gh/torchopenl3%2Ftorchopenl3.svg)](https://github.com/turian/torchopenl3) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
+
 
 ## Contributors
 ![GitHub Contributors Image](https://contrib.rocks/image?repo=turian/torchopenl3)
 
 Please refer to the [Openl3 Library](https://github.com/marl/openl3) for keras version.
 
-The audio and image embedding models provided here are published as part of [1], and are based on the Look, Listen and Learn approach [2]. For details about the embedding models and how they were trained, please see:
 
-[Look, Listen and Learn More: Design Choices for Deep Audio Embeddings](http://www.justinsalamon.com/uploads/4/3/9/4/4394963/cramer_looklistenlearnmore_icassp_2019.pdf)<br/>
-Jason Cramer, Ho-Hsiang Wu, Justin Salamon, and Juan Pablo Bello.<br/>
-IEEE Int. Conf. on Acoustics, Speech and Signal Processing (ICASSP), pages 3852–3856, Brighton, UK, May 2019.
 
 # Comparasion
 
@@ -72,3 +72,7 @@ IEEE Int. Conf. on Acoustics, Speech and Signal Processing (ICASSP), pages 3852�
 [2] [Look, Listen and Learn](http://openaccess.thecvf.com/content\_ICCV\_2017/papers/Arandjelovic\_Look\_Listen\_and\_ICCV\_2017\_paper.pdf)<br/>
 Relja Arandjelović and Andrew Zisserman<br/>
 IEEE International Conference on Computer Vision (ICCV), Venice, Italy, Oct. 2017.
+
+
+# Model Weights License
+The model weights are made available under [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
