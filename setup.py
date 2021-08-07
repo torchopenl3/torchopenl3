@@ -1,6 +1,5 @@
 import imp
 import os
-from itertools import product
 from setuptools import find_packages, setup
 
 version = imp.load_source(
@@ -39,6 +38,7 @@ setup(
         "torch>=1.4.0",
         "nnAudio>=0.2.4",
         "julius>=0.2.5",
+        "librosa",
     ],
     extras_require={
         "test": [

@@ -5,7 +5,6 @@ from torchopenl3.cli import (
     positive_float,
     get_file_list,
     parse_args,
-    run,
     main,
 )
 from argparse import ArgumentTypeError
@@ -13,7 +12,6 @@ from torchopenl3.torchopenl3_exceptions import TorchOpenL3Error
 import tempfile
 import numpy as np
 from unittest.mock import patch
-import requests
 
 TEST_DIR = os.path.dirname(__file__)
 TEST_AUDIO_DIR = os.path.join(TEST_DIR, "data", "audio")
