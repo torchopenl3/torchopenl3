@@ -1,7 +1,7 @@
 # Torchopenl3
 TorchopenL3 is an open-source Python library Pytorch Support for computing deep audio embeddings.
 
-
+[![DOI](https://zenodo.org/badge/347964280.svg)](https://zenodo.org/badge/latestdoi/347964280)
 [![PyPI](https://img.shields.io/badge/python-3.6%2C%203.7-blue.svg)](https://pypi.python.org/pypi/openl3) [![Build Status](https://travis-ci.org/turian/torchopenl3.png?branch=main)](https://travis-ci.org/turian/torchopenl3) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/turian/torchopenl3/pulse) [![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](https://GitHub.com/turian/torchopenl3) [![GitHub version](https://badge.fury.io/gh/turian%2Ftorchopenl3.svg)](https://github.com/turian/torchopenl3) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Contributors
