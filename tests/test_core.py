@@ -1,9 +1,5 @@
-import pytest
-import tempfile
 import numpy as np
 import os
-import requests
-import shutil
 import soundfile as sf
 import torchopenl3
 import torchopenl3.models

@@ -1,0 +1,24 @@
+# YAML 1.2
+---
+abstract: "We describes the steps necessary to port OpenL3 audio embeddings(Cramer et al., 2019) 
+           to PyTorch. We do regression tests to demonstate and elucidate differences between 
+           themodels. The largest mean absolute error (<1e−3) occurs when using mel-spectrogramson 
+           high-pitched frequency.
+           Keywords:Audio Embedding, pytorch, Mel Spectrogram, Spectrogram"
+authors: 
+  -
+    family-names: "Das"
+    given-names:  "Gyanendra"
+  -
+    family-names: "Khan"
+    given-names: Humair Raj 
+  -
+    family-names: "Turian"
+    given-names: "Joseph"
+cff-version: "1.1.0"
+date-released: 2021-08-05
+license: "Apache-2.0"
+message: "If you use this Library, please cite it using these metadata."
+repository-code: "https://github.com/torchopenl3/torchopenl3"
+title: Torchopenl3
+...

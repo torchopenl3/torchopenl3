@@ -20,19 +20,15 @@ TARGET_SR = 48000
 
 
 def get_model_path(input_repr, content_type, embedding_size):
-    base_url = "https://github.com/Luckygyana/torchopenl3-models/raw/master/"
+    base_url = "https://github.com/torchopenl3/torchopenl3-models/raw/master/"
     return f"{base_url}torchopenl3_{input_repr}_{content_type}_{embedding_size}.pth.tar"
 
 
 def load_audio_embedding_model(
-    input_repr,
-    content_type,
-    embedding_size,
+    input_repr, content_type, embedding_size,
 ):
     model = PytorchOpenl3(
-        input_repr=input_repr,
-        embedding_size=embedding_size,
-        content_type=content_type,
+        input_repr=input_repr, embedding_size=embedding_size, content_type=content_type,
     )
 
     weight_path = get_model_path(input_repr, content_type, embedding_size)
