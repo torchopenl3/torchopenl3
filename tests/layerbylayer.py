@@ -5,15 +5,13 @@ import tempfile
 
 import numpy as np
 import openl3
-import pytest
 import requests
 import resampy
-import scipy.stats
 import soundfile as sf
 import torch
 from torch import tensor as T
 import torchopenl3
-from keras import Input, Model
+from keras import Model
 from tqdm.auto import tqdm
 
 random.seed(0)

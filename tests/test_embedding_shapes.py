@@ -1,11 +1,4 @@
-import itertools
-import os.path
-import tempfile
-
 import numpy as np
-import openl3
-import pytest
-import requests
 import soundfile as sf
 import torch
 from torch import tensor as T
