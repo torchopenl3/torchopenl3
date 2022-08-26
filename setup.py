@@ -19,7 +19,9 @@ setup(
     author="Humair Raj Khan and Gyanendra Das",
     author_email="gyanendralucky9337@gmail.com",
     packages=find_packages(),
-    entry_points={"console_scripts": ["torchopenl3=torchopenl3.cli:main"],},
+    entry_points={
+        "console_scripts": ["torchopenl3=torchopenl3.cli:main"],
+    },
     license="MIT",
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -52,6 +54,7 @@ setup(
             "tensorflow<1.14",  # For openl3
             "requests",
             "tqdm",
+            "protobuf<=3.20.1",  # https://exerror.com/typeerror-descriptors-cannot-not-be-created-directly/
         ],
         "dev": [
             "pytest",
@@ -68,6 +71,7 @@ setup(
             "nbstripout==0.3.9",  # Used in precommit hooks
             "black==20.8b1",  # Used in precommit hooks
             "jupytext==v1.10.3",  # Used in precommit hooks
+            "protobuf<=3.20.1",  # https://exerror.com/typeerror-descriptors-cannot-not-be-created-directly/
         ],
     },
 )
