@@ -3,7 +3,6 @@ Please cite the following TorchOpenL3 in your work:<br/>
 [1]Gyanendra Das, Humair Raj Khan, Joseph Turian (2021). torchopenl3 (version 1.0.0). DOI 10.5281/zenodo.5168808, https://github.com/torchopenl3/torchopenl3.<br/><br/>
 
 TorchopenL3 is a pytorch port of the [OpenL3](https://github.com/marl/openl3) Python library for computing deep audio embeddings.<br/>
-[![DOI](https://zenodo.org/badge/347964280.svg)](https://zenodo.org/badge/latestdoi/347964280)
 [![PyPI](https://img.shields.io/badge/python-3.6%2C%203.7-blue.svg)](https://pypi.python.org/pypi/openl3) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/torchopenl3/torchopenl3/pulse) [![Ask Me Anything !](https://img.shields.io/badge/Ask%20me-anything-1abc9c.svg)](https://GitHub.com/torchopenl3/torchopenl3) [![GitHub version](https://badge.fury.io/gh/torchopenl3%2Ftorchopenl3.svg)](https://github.com/turian/torchopenl3) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 
