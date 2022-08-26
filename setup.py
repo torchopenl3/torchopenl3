@@ -54,6 +54,7 @@ setup(
             "tensorflow<1.14",  # For openl3
             "requests",
             "tqdm",
+            "protobuf<=3.20.1",  # https://exerror.com/typeerror-descriptors-cannot-not-be-created-directly/
         ],
         "dev": [
             "pytest",
